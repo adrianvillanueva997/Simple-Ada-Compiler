@@ -19,15 +19,14 @@ void yyerror(const char* s);
 %token<ival> INT
 %token<fval> FLOAT
 %token<sval> STRING
-%token<sval> PLUS
-%token MINUS MULTIPLY DIVIDE LEFT RIGHT WHILE BOOLEAN FOR CASE OPEN CLOSE LESS MORE EQUAL COMMENT
+%token PLUS MINUS MULTIPLY DIVIDE LEFT RIGHT WHILE BOOLEAN FOR CASE OPEN CLOSE LESS MORE EQUAL COMMENT
 %token NEWLINE QUIT
 %left PLUS MINUS
 %left MULTIPLY DIVIDE
 
-%type<ival> expression
-%type<sval> mixed_expression
-%type<sval> STMTS
+//%type<ival> expression
+//%type<fval> mixed_expression
+%type<sval> OPERATION
 
 %start calculation
 
@@ -38,26 +37,46 @@ calculation:
 ;
 
 line: NEWLINE {printf("Just a newline");}
-	| STMTS NEWLINE { printf("%s", $1); }
-    | PLUS NEWLINE { printf("The string is: %c", $1);}
-    | mixed_expression NEWLINE { printf("\tResult: %s\n", $1);}
-    | expression NEWLINE { printf("\tResult: %i\n", $1); }
+	| OPERATION NEWLINE { printf("%s", $1); }
+    //| mixed_expression NEWLINE { printf("\tResult: %f\n", $1);}
+    //| expression NEWLINE { printf("\tResult: %i\n", $1); }
     | QUIT NEWLINE { printf("bye!\n"); exit(0); }
 ;
 
-STMTS: STRING STRING EQUAL expression { $$ = "declaracion";}
+OPERATION: INT {$$ = "INTEGER";}
+	| FLOAT {$$ = "FLOAT";}
+	| OPERATION PLUS OPERATION { $$ = "Operacion aritmetica\n";}
+	| OPERATION MINUS OPERATION { $$ = "Operacion aritmetica\n";}
+	| OPERATION MULTIPLY OPERATION { $$ = "Operacion aritmetica\n";}
+	| OPERATION DIVIDE OPERATION { $$ = "Operacion aritmetica\n";}
+	| LEFT OPERATION RIGHT { $$ = "Operacion aritmetica\n";}
 
+/*OPERATIONS: OPERATION { $$ = "Operacion aritmetica\n";}
+	|OPERATION PLUS OPERATION { $$ = "Operacion aritmetica\n";}*/
 
-mixed_expression: FLOAT PLUS FLOAT	 { $$ = "operacion de suma con reales"; }
-
-
-expression: INT				{ $$ = $1; }
+/*mixed_expression: FLOAT                 		 { $$ = $1; }
+	  | mixed_expression PLUS mixed_expression	 { $$ = $1 + $3; }
+	  | mixed_expression MINUS mixed_expression	 { $$ = $1 - $3; }
+	  | mixed_expression MULTIPLY mixed_expression { $$ = $1 * $3; }
+	  | mixed_expression DIVIDE mixed_expression	 { $$ = $1 / $3; }
+	  | LEFT mixed_expression RIGHT		 { $$ = $2; }
+	  | expression PLUS mixed_expression	 	 { $$ = $1 + $3; }
+	  | expression MINUS mixed_expression	 	 { $$ = $1 - $3; }
+	  | expression MULTIPLY mixed_expression 	 { $$ = $1 * $3; }
+	  | expression DIVIDE mixed_expression	 { $$ = $1 / $3; }
+	  | mixed_expression PLUS expression	 	 { $$ = $1 + $3; }
+	  | mixed_expression MINUS expression	 	 { $$ = $1 - $3; }
+	  | mixed_expression MULTIPLY expression 	 { $$ = $1 * $3; }
+	  | mixed_expression DIVIDE expression	 { $$ = $1 / $3; }
+	  | expression DIVIDE expression		 { $$ = $1 / (float)$3; }
+*/
+/*expression: INT				{ $$ = $1; }
 	  | expression PLUS expression	{ $$ = $1 + $3; }
 	  | expression MINUS expression	{ $$ = $1 - $3; }
 	  | expression MULTIPLY expression	{ $$ = $1 * $3; }
 	  | LEFT expression RIGHT		{ $$ = $2; }
 ;
-
+*/
 %%
 
 int main() {

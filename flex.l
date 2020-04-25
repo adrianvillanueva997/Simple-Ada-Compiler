@@ -9,7 +9,6 @@
 word ([a-zA-Z])+
 fnum ([0-9])+[\,|\.]([0-9])+
 inum ([0-9])+
-
 bool (bool|boolean)
 while (while|WHILE)
 for (for|FOR)
@@ -22,7 +21,7 @@ case (case|CASE)
 {inum}	{yylval.ival = atoi(yytext); return INT;}
 {word}  {yylval.sval = strdup(yytext); return STRING;}
 \n		{return NEWLINE;}
-"boolean"  {return BOOLEAN;}
+"bool"  {return BOOLEAN;}
 "{"		{return OPEN;}
 "}"		{return CLOSE;}
 "+"		{return PLUS;}
