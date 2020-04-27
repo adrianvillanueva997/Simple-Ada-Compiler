@@ -7,7 +7,8 @@
 
 %}
 
-word ([a-zA-Z])+
+variable_name ([a-zA-Z|0-9|_|])+
+string ([a-zA-Z])+
 fnum ([0-9])+[\,|\.]([0-9])+
 inum ([0-9])+
 bool (bool|boolean)
@@ -28,7 +29,7 @@ or (or|OR)
 {bool}  {return BOOL;}
 {fnum}	{yylval.fval = atof(yytext); return FLOAT;}
 {inum}	{yylval.ival = atoi(yytext); return INT;}
-{word}  {yylval.sval = strdup(yytext); return STRING;}
+{variable_name}  {yylval.sval = strdup(yytext); return VAR_NAME;}
 \n		{return NEWLINE;}
 "{"		{return OPEN;}
 "}"		{return CLOSE;}
