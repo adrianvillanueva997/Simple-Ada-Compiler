@@ -27,6 +27,8 @@ or (or|OR)
 {true}  {return TRUE;} //funciona por algun motivo, hay que poner esto arriba del todo
 {false} {return FALSE;}
 {bool}  {return BOOL;}
+{and} {return AND;}
+{or} {return OR;}
 {fnum}	{yylval.fval = atof(yytext); return FLOAT;}
 {inum}	{yylval.ival = atoi(yytext); return INT;}
 {variable_name}  {yylval.sval = strdup(yytext); return VAR_NAME;}
@@ -47,4 +49,5 @@ or (or|OR)
 "<="    {return LESSER_THAN;}
 "!="    {return NOT_EQUAL;}
 "=="    {return COMPARE;}
+
 %%
