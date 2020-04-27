@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 extern int yylex();
 extern int yyparse();
@@ -15,18 +16,26 @@ void yyerror(const char* s);
 	float fval;
 	char* sval;
 }
-
+// TIPOS
 %token<ival> INT
 %token<fval> FLOAT
 %token<sval> STRING
-%token PLUS MINUS MULTIPLY DIVIDE LEFT RIGHT WHILE BOOLEAN FOR CASE OPEN CLOSE LESS MORE EQUAL COMMENT
-%token NEWLINE QUIT
+// TOKENS GENERALES
+%token PLUS MINUS MULTIPLY DIVIDE // operadores
+%token LEFT RIGHT OPEN CLOSE // parentesis/llaves
+%token WHILE BOOL FOR CASE // palabras reservadas
+%token LESS MORE EQUAL GREATER_THAN LESSER_THAN NOT_EQUAL COMPARE  // operadores logicos
+%token COMMENT //simbolos reservados
+%token NEWLINE QUIT //cosas de flex
+%token TRUE FALSE
+// PRIORIDADES
 %left PLUS MINUS
 %left MULTIPLY DIVIDE
-
 //%type<ival> expression
 //%type<fval> mixed_expression
 %type<sval> OPERATION
+%type<sval> BOOLEAN_VAR
+%type<sval> BOOLEAN_OP
 
 %start calculation
 
@@ -38,6 +47,7 @@ calculation:
 
 line: NEWLINE {printf("Just a newline");}
 	| OPERATION NEWLINE { printf("%s", $1); }
+	| BOOLEAN_VAR NEWLINE {printf("%s", $1);}
     //| mixed_expression NEWLINE { printf("\tResult: %f\n", $1);}
     //| expression NEWLINE { printf("\tResult: %i\n", $1); }
     | QUIT NEWLINE { printf("bye!\n"); exit(0); }
@@ -51,6 +61,13 @@ OPERATION: INT {$$ = "INTEGER";}
 	| OPERATION DIVIDE OPERATION { $$ = "Operacion aritmetica\n";}
 	| LEFT OPERATION RIGHT { $$ = "Operacion aritmetica\n";}
 
+;
+BOOLEAN_VAR:  BOOL STRING EQUAL TRUE {$$ = "Declaracion de variable booleana True";}
+	| BOOL STRING EQUAL FALSE {$$ = "Declaracion de variable booleana False";}
+	
+	
+
+;
 /*OPERATIONS: OPERATION { $$ = "Operacion aritmetica\n";}
 	|OPERATION PLUS OPERATION { $$ = "Operacion aritmetica\n";}*/
 
