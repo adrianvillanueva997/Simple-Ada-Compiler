@@ -46,5 +46,4 @@ or (or|OR)
 "<="    {return LESSER_THAN;}
 "!="    {return NOT_EQUAL;}
 "=="    {return COMPARE;}
-"and"
 %%
