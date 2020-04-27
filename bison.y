@@ -33,6 +33,8 @@ void yyerror(const char* s);
 %left MULTIPLY DIVIDE
 //%type<ival> expression
 //%type<fval> mixed_expression
+
+// tipos 
 %type<sval> OPERATION
 %type<sval> BOOLEAN_VAR
 %type<sval> BOOLEAN_OP
@@ -99,10 +101,13 @@ BOOLEAN_OP:
 	| INT LESSER_THAN INT {$$ = "Numero menor o igual que numero";} // 1 <= 1
 	| INT NOT_EQUAL INT {$$ = "Numero no igual a numero";} // 1 != 0
 ;
-
+// operaciones con and y or
 BOOLEAN_MIX:
 	BOOLEAN_OP AND BOOLEAN_OP {$$ = "Operacion booleana Y operacion booleana";} // patata > 1 and patata < 2
 	| BOOLEAN_OP OR BOOLEAN_OP {$$ = "Operacion booleana O operacion booleana";} // patata > 1 or patata < 2
+	| RIGHT BOOLEAN_OP AND BOOLEAN_OP LEFT {$ = "Operacion booleana Y con parentesis"} // (patata > 1 and patata < 2)
+	| RIGHT BOOLEAN_OP OR BOOLEAN_OP LEFT {$ = "Operacion booleana O con parentesis"} // (patata > 1 or patata < 2)
+
 	// | RIGHT BOOLEAN_MIX LEFT {$$ = "Muchas operaciones booleanas";}  // ESTO PETA Y TENGO QUE REVISARLO
 
 ;
