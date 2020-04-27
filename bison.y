@@ -19,7 +19,7 @@ void yyerror(const char* s);
 // TIPOS
 %token<ival> INT
 %token<fval> FLOAT
-%token<sval> STRING
+%token<sval> VAR_NAME
 // TOKENS GENERALES
 %token PLUS MINUS MULTIPLY DIVIDE // operadores
 %token LEFT RIGHT OPEN CLOSE // parentesis/llaves
@@ -35,7 +35,7 @@ void yyerror(const char* s);
 //%type<fval> mixed_expression
 %type<sval> OPERATION
 %type<sval> BOOLEAN_VAR
-// %type<sval> BOOLEAN_OP
+%type<sval> BOOLEAN_OP
 
 %start calculation
 
@@ -48,6 +48,7 @@ calculation:
 line: NEWLINE {printf("Just a newline");}
 	| OPERATION NEWLINE { printf("%s", $1); }
 	| BOOLEAN_VAR NEWLINE {printf("%s", $1);}
+	| BOOLEAN_OP NEWLINE {printf("%s",$1);}
     //| mixed_expression NEWLINE { printf("\tResult: %f\n", $1);}
     //| expression NEWLINE { printf("\tResult: %i\n", $1); }
     | QUIT NEWLINE { printf("bye!\n"); exit(0); }
@@ -62,10 +63,11 @@ OPERATION: INT {$$ = "INTEGER";}
 	| LEFT OPERATION RIGHT { $$ = "Operacion aritmetica\n";}
 
 ;
-BOOLEAN_VAR:  BOOL STRING EQUAL TRUE {$$ = "Declaracion de variable booleana True";}
-	| BOOL STRING EQUAL FALSE {$$ = "Declaracion de variable booleana False";}
+BOOLEAN_VAR:  BOOL VAR_NAME EQUAL TRUE {$$ = "Declaracion de variable booleana True";}
+	| BOOL VAR_NAME EQUAL FALSE {$$ = "Declaracion de variable booleana False";}
 	
-	
+BOOLEAN_OP: VAR_NAME {$$ = "SOY UN PUTO VAR_NAME";}
+
 
 ;
 /*OPERATIONS: OPERATION { $$ = "Operacion aritmetica\n";}
