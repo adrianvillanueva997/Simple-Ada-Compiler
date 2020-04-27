@@ -35,7 +35,7 @@ void yyerror(const char* s);
 //%type<fval> mixed_expression
 %type<sval> OPERATION
 %type<sval> BOOLEAN_VAR
-%type<sval> BOOLEAN_OP
+// %type<sval> BOOLEAN_OP
 
 %start calculation
 
