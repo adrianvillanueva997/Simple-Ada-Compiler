@@ -19,23 +19,22 @@ void yyerror(const char* s);
 // TIPOS
 %token<ival> INT
 %token<fval> FLOAT
-%token<sval> VAR_NAME
 // TOKENS GENERALES
 %token PLUS MINUS MULTIPLY DIVIDE // operadores
 %token LEFT RIGHT OPEN CLOSE // parentesis/llaves
-%token WHILE BOOL FOR CASE // palabras reservadas
+%token WHILE BOOL FOR CASE INTEGERDEC FLOATDEC CHARDEC STRINGDEC STR VAR_NAME CHAR // palabras reservadas
 %token LESS MORE EQUAL GREATER_THAN LESSER_THAN NOT_EQUAL COMPARE  // operadores logicos
-%token COMMENT //simbolos reservados
+%token COMMENT COLON SEMICOLON QUOTE //simbolos reservados
 %token NEWLINE QUIT //cosas de flex
 %token TRUE FALSE
 // PRIORIDADES
 %left PLUS MINUS
 %left MULTIPLY DIVIDE
-//%type<ival> expression
-//%type<fval> mixed_expression
+
 %type<sval> OPERATION
+%type<sval> DECL
+//%type<sval> ASIG
 %type<sval> BOOLEAN_VAR
-%type<sval> BOOLEAN_OP
 
 %start calculation
 
@@ -48,12 +47,25 @@ calculation:
 line: NEWLINE {printf("Just a newline");}
 	| OPERATION NEWLINE { printf("%s", $1); }
 	| BOOLEAN_VAR NEWLINE {printf("%s", $1);}
-	| BOOLEAN_OP NEWLINE {printf("%s",$1);}
-    //| mixed_expression NEWLINE { printf("\tResult: %f\n", $1);}
-    //| expression NEWLINE { printf("\tResult: %i\n", $1); }
+	| DECL NEWLINE {printf("%s",$1);}
+	//| ASIG NEWLINE {printf("%s",$1);}
     | QUIT NEWLINE { printf("bye!\n"); exit(0); }
 ;
 
+DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$ = "Declaracion de integer\n";}
+	| VAR_NAME COLON STRINGDEC SEMICOLON { $$ = "Declaracion de string\n";}
+	| VAR_NAME COLON FLOATDEC SEMICOLON { $$ = "Declaracion de float\n";}
+	| VAR_NAME COLON CHARDEC SEMICOLON { $$ = "Declaracion de char\n";}
+	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION SEMICOLON { $$ = "Asignacion y declaracion de integer\n";}
+	| VAR_NAME COLON EQUAL OPERATION SEMICOLON { $$ = "Asignacion de int/float\n";}
+	| VAR_NAME COLON STRINGDEC COLON EQUAL STR SEMICOLON { $$ = "Asignacion y declaracion de string\n";}
+	| VAR_NAME COLON EQUAL STR SEMICOLON { $$ = "Asignacion de string\n";}
+	| VAR_NAME COLON FLOATDEC COLON EQUAL OPERATION SEMICOLON { $$ = "Asignacion y declaracion de float\n";}
+	| VAR_NAME COLON CHARDEC COLON EQUAL CHAR SEMICOLON { $$ = "Asignacion y declaracion de char\n";}
+	| VAR_NAME COLON EQUAL CHAR SEMICOLON { $$ = "Asignacion de char\n";}
+	
+
+;
 OPERATION: INT {$$ = "INTEGER";}
 	| FLOAT {$$ = "FLOAT";}
 	| OPERATION PLUS OPERATION { $$ = "Operacion aritmetica\n";}
@@ -62,40 +74,12 @@ OPERATION: INT {$$ = "INTEGER";}
 	| OPERATION DIVIDE OPERATION { $$ = "Operacion aritmetica\n";}
 	| LEFT OPERATION RIGHT { $$ = "Operacion aritmetica\n";}
 
+
 ;
 BOOLEAN_VAR:  BOOL VAR_NAME EQUAL TRUE {$$ = "Declaracion de variable booleana True";}
 	| BOOL VAR_NAME EQUAL FALSE {$$ = "Declaracion de variable booleana False";}
-	
-BOOLEAN_OP: VAR_NAME {$$ = "SOY UN PUTO VAR_NAME";}
-
 
 ;
-/*OPERATIONS: OPERATION { $$ = "Operacion aritmetica\n";}
-	|OPERATION PLUS OPERATION { $$ = "Operacion aritmetica\n";}*/
-
-/*mixed_expression: FLOAT                 		 { $$ = $1; }
-	  | mixed_expression PLUS mixed_expression	 { $$ = $1 + $3; }
-	  | mixed_expression MINUS mixed_expression	 { $$ = $1 - $3; }
-	  | mixed_expression MULTIPLY mixed_expression { $$ = $1 * $3; }
-	  | mixed_expression DIVIDE mixed_expression	 { $$ = $1 / $3; }
-	  | LEFT mixed_expression RIGHT		 { $$ = $2; }
-	  | expression PLUS mixed_expression	 	 { $$ = $1 + $3; }
-	  | expression MINUS mixed_expression	 	 { $$ = $1 - $3; }
-	  | expression MULTIPLY mixed_expression 	 { $$ = $1 * $3; }
-	  | expression DIVIDE mixed_expression	 { $$ = $1 / $3; }
-	  | mixed_expression PLUS expression	 	 { $$ = $1 + $3; }
-	  | mixed_expression MINUS expression	 	 { $$ = $1 - $3; }
-	  | mixed_expression MULTIPLY expression 	 { $$ = $1 * $3; }
-	  | mixed_expression DIVIDE expression	 { $$ = $1 / $3; }
-	  | expression DIVIDE expression		 { $$ = $1 / (float)$3; }
-*/
-/*expression: INT				{ $$ = $1; }
-	  | expression PLUS expression	{ $$ = $1 + $3; }
-	  | expression MINUS expression	{ $$ = $1 - $3; }
-	  | expression MULTIPLY expression	{ $$ = $1 * $3; }
-	  | LEFT expression RIGHT		{ $$ = $2; }
-;
-*/
 %%
 
 int main() {

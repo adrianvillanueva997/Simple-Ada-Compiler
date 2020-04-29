@@ -7,11 +7,16 @@
 
 %}
 
-variable_name ([a-zA-Z|0-9|_|])+
-string ([a-zA-Z])+
+variable_name ([a-zA-Z])+([a-zA-Z]|[0-9]|[_])*
+string (\".+\")
+char (\".{1}\")
 fnum ([0-9])+[\,|\.]([0-9])+
 inum ([0-9])+
 bool (bool|boolean)
+int (integer)
+stringd (String)
+character (character)
+float (float)
 while (while|WHILE)
 for (for|FOR)
 case (case|CASE)
@@ -26,11 +31,20 @@ or (or|OR)
 [ \t]	; // ignore all whitespace
 {true}  {return TRUE;} //funciona por algun motivo, hay que poner esto arriba del todo
 {false} {return FALSE;}
+{char}  {return CHAR;}
 {bool}  {return BOOL;}
+{int} {return INTEGERDEC;}
+{float} {return FLOATDEC;}
+{character} {return CHARDEC;}
+{stringd} {return STRINGDEC;}
 {fnum}	{yylval.fval = atof(yytext); return FLOAT;}
 {inum}	{yylval.ival = atoi(yytext); return INT;}
-{variable_name}  {yylval.sval = strdup(yytext); return VAR_NAME;}
+{string}  {return STR;}
+{variable_name}  {return VAR_NAME;}
+
 \n		{return NEWLINE;}
+":"		{return COLON;}
+";"		{return SEMICOLON;}
 "{"		{return OPEN;}
 "}"		{return CLOSE;}
 "+"		{return PLUS;}
