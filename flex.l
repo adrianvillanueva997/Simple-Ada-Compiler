@@ -33,8 +33,8 @@ or (or|OR)
 {false} {return FALSE;}
 {char}  {return CHAR;}
 {bool}  {return BOOL;}
-{and} {return AND;}
-{or} {return OR;}
+{and} 	{return AND;}
+{or} 	{return OR;}
 {int} {return INTEGERDEC;}
 {float} {return FLOATDEC;}
 {character} {return CHARDEC;}

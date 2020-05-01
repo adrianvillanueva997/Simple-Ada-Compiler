@@ -2082,18 +2082,20 @@ yyreturn:
 #line 124 "bison.y"
 
 
-int main() {
-	yyin = stdin;
+int main(int arg, char *argv[]) {
+
+	FILE *myfile = fopen("main.adb", "r");
+	yyin = myfile;
 
 	do {
 		yyparse();
 	} while(!feof(yyin));
 
-	return 0;
+
 }
 
 void yyerror(const char* s) {
-	fprintf(stderr, "Parse error: %s\n", s);
+	printf(stderr, "Parse error: %s\n", s);
 	exit(1);
 }
 

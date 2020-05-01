@@ -117,8 +117,8 @@ BOOLEAN_OP:
 BOOLEAN_MIX:
 	BOOLEAN_OP AND BOOLEAN_OP {$$ = "Operacion booleana Y operacion booleana";} // patata > 1 and patata < 2
 	| BOOLEAN_OP OR BOOLEAN_OP {$$ = "Operacion booleana O operacion booleana";} // patata > 1 or patata < 2
-	| RIGHT BOOLEAN_OP AND BOOLEAN_OP LEFT {$$ = "Operacion booleana Y con parentesis"} // (patata > 1 and patata < 2)
-	| RIGHT BOOLEAN_OP OR BOOLEAN_OP LEFT {$$ = "Operacion booleana O con parentesis"} // (patata > 1 or patata < 2)
+	| RIGHT BOOLEAN_OP AND BOOLEAN_OP LEFT {$$ = "Operacion booleana Y con parentesis";} // (patata > 1 and patata < 2)
+	| RIGHT BOOLEAN_OP OR BOOLEAN_OP LEFT {$$ = "Operacion booleana O con parentesis";} // (patata > 1 or patata < 2)
 
 
 %%
