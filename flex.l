@@ -33,15 +33,12 @@ or (or|OR)
 {false} {return FALSE;}
 {char}  {return CHAR;}
 {bool}  {return BOOL;}
-<<<<<<< HEAD
 {and} {return AND;}
 {or} {return OR;}
-=======
 {int} {return INTEGERDEC;}
 {float} {return FLOATDEC;}
 {character} {return CHARDEC;}
 {stringd} {return STRINGDEC;}
->>>>>>> pablo
 {fnum}	{yylval.fval = atof(yytext); return FLOAT;}
 {inum}	{yylval.ival = atoi(yytext); return INT;}
 {string}  {return STR;}

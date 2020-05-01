@@ -22,7 +22,6 @@ void yyerror(const char* s);
 // TOKENS GENERALES
 %token PLUS MINUS MULTIPLY DIVIDE // operadores
 %token LEFT RIGHT OPEN CLOSE // parentesis/llaves
-%token COMMENT COLON SEMICOLON QUOTE //simbolos reservados
 %token WHILE BOOL FOR CASE INTEGERDEC FLOATDEC CHARDEC STRINGDEC STR VAR_NAME CHAR  AND OR // palabras reservadas
 %token LESS MORE EQUAL GREATER_THAN LESSER_THAN NOT_EQUAL COMPARE  // operadores logicos
 %token COMMENT COLON SEMICOLON QUOTE //simbolos reservados
@@ -37,6 +36,8 @@ void yyerror(const char* s);
 %type<sval> DECL
 //%type<sval> ASIG
 %type<sval> BOOLEAN_VAR
+%type<sval> BOOLEAN_OP
+%type<sval> BOOLEAN_MIX
 
 %start calculation
 
@@ -49,6 +50,8 @@ calculation:
 line: NEWLINE {printf("Just a newline");}
 	| OPERATION NEWLINE { printf("%s", $1); }
 	| BOOLEAN_VAR NEWLINE {printf("%s", $1);}
+	| BOOLEAN_OP NEWLINE {printf("%s", $1);}
+	| BOOLEAN_MIX NEWLINE {printf("%s", $1);}
 	| DECL NEWLINE {printf("%s",$1);}
 	//| ASIG NEWLINE {printf("%s",$1);}
     | QUIT NEWLINE { printf("bye!\n"); exit(0); }
@@ -114,15 +117,10 @@ BOOLEAN_OP:
 BOOLEAN_MIX:
 	BOOLEAN_OP AND BOOLEAN_OP {$$ = "Operacion booleana Y operacion booleana";} // patata > 1 and patata < 2
 	| BOOLEAN_OP OR BOOLEAN_OP {$$ = "Operacion booleana O operacion booleana";} // patata > 1 or patata < 2
-	| RIGHT BOOLEAN_OP AND BOOLEAN_OP LEFT {$ = "Operacion booleana Y con parentesis"} // (patata > 1 and patata < 2)
-	| RIGHT BOOLEAN_OP OR BOOLEAN_OP LEFT {$ = "Operacion booleana O con parentesis"} // (patata > 1 or patata < 2)
-BOOLEAN_VAR:  BOOL VAR_NAME EQUAL TRUE {$$ = "Declaracion de variable booleana True";}
-	| BOOL VAR_NAME EQUAL FALSE {$$ = "Declaracion de variable booleana False";}
+	| RIGHT BOOLEAN_OP AND BOOLEAN_OP LEFT {$$ = "Operacion booleana Y con parentesis"} // (patata > 1 and patata < 2)
+	| RIGHT BOOLEAN_OP OR BOOLEAN_OP LEFT {$$ = "Operacion booleana O con parentesis"} // (patata > 1 or patata < 2)
 
-;
-FOR_ASIG:
-VAR_NAME COMPARE VAR_NAME {$$ = "Asignacion de un valor a la variable";} // var = dato
-// Operaciones de asignacion
+
 %%
 
 int main() {
