@@ -2,8 +2,8 @@
 
 %{
 #include <stdio.h>
-#include "y.tab.h"
-// #include "bison.tab.h"
+//#include "y.tab.h"
+#include "bison.tab.h"
 
 %}
 
@@ -27,8 +27,8 @@ or (or|OR)
 
 
 %%
-
-[ \t]	; // ignore all whitespace
+[ \0]	; // ignore all null
+[ \n]   ; // ignore all whitespace
 {true}  {return TRUE;} //funciona por algun motivo, hay que poner esto arriba del todo
 {false} {return FALSE;}
 {char}  {return CHAR;}
@@ -44,7 +44,6 @@ or (or|OR)
 {string}  {return STR;}
 {variable_name}  {return VAR_NAME;}
 
-\n		{return NEWLINE;}
 ":"		{return COLON;}
 ";"		{return SEMICOLON;}
 "{"		{return OPEN;}

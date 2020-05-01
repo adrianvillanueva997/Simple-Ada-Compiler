@@ -6,7 +6,8 @@
 
 extern int yylex();
 extern int yyparse();
-extern FILE* yyin;
+extern FILE *yyin;
+extern FILE *yyout;
 
 void yyerror(const char* s);
 %}
@@ -47,14 +48,13 @@ calculation:
 	   | calculation line
 ;
 
-line: NEWLINE {printf("Just a newline");}
-	| OPERATION NEWLINE { printf("%s", $1); }
-	| BOOLEAN_VAR NEWLINE {printf("%s", $1);}
-	| BOOLEAN_OP NEWLINE {printf("%s", $1);}
-	| BOOLEAN_MIX NEWLINE {printf("%s", $1);}
-	| DECL NEWLINE {printf("%s",$1);}
-	//| ASIG NEWLINE {printf("%s",$1);}
-    | QUIT NEWLINE { printf("bye!\n"); exit(0); }
+line: OPERATION { printf("%s", $1); }
+	| BOOLEAN_VAR {printf("%s", $1);}
+	| BOOLEAN_OP {printf("%s", $1);}
+	| BOOLEAN_MIX {printf("%s", $1);}
+	| DECL {printf("%s",$1);}
+	//| ASIG {printf("%s",$1);}
+    | QUIT { printf("bye!\n"); exit(0); }
 ;
 
 DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$ = "Declaracion de integer\n";}
@@ -123,15 +123,28 @@ BOOLEAN_MIX:
 
 %%
 
-int main() {
-	yyin = stdin;
+int main(int argc, char *argv[]) {
 
-	do {
-		yyparse();
-	} while(!feof(yyin));
 
-	return 0;
+		if (argc == 1) {
+
+             yyparse();
+
+		}
+
+		if (argc == 2) {
+             yyin = fopen(argv[1], "rt");
+             yyout = fopen(argv[2], "wt" );
+
+             yyparse();
+
+		}
+        /*int i = 0;
+        for(i = 0;i < argc;i++){
+        printf("%s\n",argv[i]);
+        }*/
 }
+
 
 void yyerror(const char* s) {
 	fprintf(stderr, "Parse error: %s\n", s);
