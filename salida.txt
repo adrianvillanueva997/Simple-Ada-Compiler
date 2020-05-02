@@ -1,2 +1,7 @@
 Operacion aritmetica
 Operacion aritmetica
+Operacion booleana variable - numero
+Operacion booleana variables
+Variable igual a True/False
+Operacion booleana variables
+Operacion booleana float - float

@@ -23,7 +23,7 @@ void yyerror(const char* s);
 // TOKENS GENERALES
 %token PLUS MINUS MULTIPLY DIVIDE // operadores
 %token LEFT RIGHT OPEN CLOSE // parentesis/llaves
-%token WHILE BOOL FOR CASE INTEGERDEC FLOATDEC CHARDEC STRINGDEC STR VAR_NAME CHAR  AND OR // palabras reservadas
+%token WHILE BOOL FOR CASE INTEGERDEC FLOATDEC CHARDEC STRINGDEC STR VAR_NAME CHAR AND OR // palabras reservadas
 %token LESS MORE EQUAL GREATER_THAN LESSER_THAN NOT_EQUAL COMPARE  // operadores logicos
 %token COMMENT COLON SEMICOLON QUOTE //simbolos reservados
 %token NEWLINE QUIT //cosas de flex
@@ -36,9 +36,12 @@ void yyerror(const char* s);
 %type<sval> OPERATION
 %type<sval> DECL
 //%type<sval> ASIG
-%type<sval> BOOLEAN_VAR
+
+// Booleanos
 %type<sval> BOOLEAN_OP
-%type<sval> BOOLEAN_MIX
+%type<sval> BOOLEAN_OPERATORS
+// %type<sval> BOOLEAN_MIX
+%type<sval> BOOLEAN_VAR
 
 %start calculation
 
@@ -49,18 +52,18 @@ calculation:
 ;
 
 line: OPERATION { printf("%s", $1); }
-	| BOOLEAN_VAR {printf("%s", $1);}
 	| BOOLEAN_OP {printf("%s", $1);}
-	| BOOLEAN_MIX {printf("%s", $1);}
+	// | BOOLEAN_MIX {printf("%s",%1);}
 	| DECL {printf("%s",$1);}
 	//| ASIG {printf("%s",$1);}
     | QUIT { printf("bye!\n"); exit(0); }
 ;
-
+// Declaracion y asignacion de variables
 DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$ = "Declaracion de integer\n";}
 	| VAR_NAME COLON STRINGDEC SEMICOLON { $$ = "Declaracion de string\n";}
 	| VAR_NAME COLON FLOATDEC SEMICOLON { $$ = "Declaracion de float\n";}
 	| VAR_NAME COLON CHARDEC SEMICOLON { $$ = "Declaracion de char\n";}
+	| VAR_NAME COLON BOOL SEMICOLON {$$="Declaracion de boolean\n";}
 	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION SEMICOLON { $$ = "Asignacion y declaracion de integer\n";}
 	| VAR_NAME COLON EQUAL OPERATION SEMICOLON { $$ = "Asignacion de int/float\n";}
 	| VAR_NAME COLON STRINGDEC COLON EQUAL STR SEMICOLON { $$ = "Asignacion y declaracion de string\n";}
@@ -68,9 +71,11 @@ DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$ = "Declaracion de integer\n";}
 	| VAR_NAME COLON FLOATDEC COLON EQUAL OPERATION SEMICOLON { $$ = "Asignacion y declaracion de float\n";}
 	| VAR_NAME COLON CHARDEC COLON EQUAL CHAR SEMICOLON { $$ = "Asignacion y declaracion de char\n";}
 	| VAR_NAME COLON EQUAL CHAR SEMICOLON { $$ = "Asignacion de char\n";}
+	| VAR_NAME COLON EQUAL BOOLEAN_VAR SEMICOLON {$$="Asignacion de boolean\n";}
 	
 
 ;
+// Operaciones aritmeticas
 OPERATION: INT {$$ = "INTEGER";}
 	| FLOAT {$$ = "FLOAT";}
 	| OPERATION PLUS OPERATION { $$ = "Operacion aritmetica\n";} // 1 + 1
@@ -79,46 +84,41 @@ OPERATION: INT {$$ = "INTEGER";}
 	| OPERATION DIVIDE OPERATION { $$ = "Operacion aritmetica\n";} // 1 / 1
 	| LEFT OPERATION RIGHT { $$ = "Operacion aritmetica\n";} // operacion entre parentesis
 
+;
+
+// Expresiones booleanas
+BOOLEAN_OPERATORS:
+	COMPARE {$$ = "==\n";}
+	| MORE {$$=">\n";}
+	| LESS {$$== "<\n";}
+	| GREATER_THAN {$$=">=\n";}
+	| LESSER_THAN {$$="<=\n";}
+	| NOT_EQUAL {$$="!=\n";}
+;
+// VARIABLES BOOLEANAS
+BOOLEAN_VAR:
+	TRUE {$$="True\n";}
+	| FALSE {$$="False\n";}
+;
+/*
+// Operaciones booleanas con and y or
+BOOLEAN_MIX:
+	BOOLEAN_OP AND BOOLEAN_OP {$$="Expresiones booleanas con AND\n";}
+	BOOLEAN_OP OR BOOLEAN_OP {$$="Expresiones booleanas con OR\n";}
 
 ;
-// Declaracion de variables booleanas
-BOOLEAN_VAR:
-	BOOL VAR_NAME EQUAL TRUE {$$ = "Declaracion de variable booleana True";} // bool patata = true
-	| BOOL VAR_NAME EQUAL FALSE {$$ = "Declaracion de variable booleana False";} // bool patata = false
-;
+*/
 // Operaciones booleanas
 BOOLEAN_OP:
-	VAR_NAME COMPARE VAR_NAME {$$ = "Variable igualdad a variable";} // patata == patata
-	| VAR_NAME MORE VAR_NAME {$$ = "Variable mayor que variable";} // patata > patata
-	| VAR_NAME LESS VAR_NAME {$$ = "Variable menor que variable";} // patata < patata
-	| VAR_NAME GREATER_THAN VAR_NAME {$$ = "Variable mayor o igual que variable";} // patata >= patata
-	| VAR_NAME LESSER_THAN VAR_NAME {$$ = "Variable menor o igual que variable";} //  patata <= patata
-	| VAR_NAME NOT_EQUAL VAR_NAME {$$ = "Variable desigual a variable";} // patata != patata
-	| VAR_NAME COMPARE INT {$$ = "Variable igual a numero";} // patata == 1
-	| VAR_NAME MORE INT {$$ = "Variable mayor que numero";} // patata > 1
-	| VAR_NAME LESS INT {$$ = "Variable menor que numero";} // patata < 1
-	| VAR_NAME GREATER_THAN INT {$$ = "Variable mayor o igual que numero";} // patata >= 1
-	| VAR_NAME LESSER_THAN INT {$$ = "Variable menor o igual que numero";} // patata <= 1
-	| VAR_NAME NOT_EQUAL INT {$$ = "Variable no igual a numero";} // patata != 1
-	| INT COMPARE VAR_NAME {$$ = "Numero igual a variable";} // 1 == patata
-	| INT MORE VAR_NAME {$$ = "Numero mayor que variable";} // 1 > patata
-	| INT LESS VAR_NAME {$$ = "Numero menor que variable";} // 1 < patata
-	| INT GREATER_THAN VAR_NAME {$$ = "Numero mayor o igual que variable";} // 1 >= patata
-	| INT LESSER_THAN VAR_NAME {$$ = "Numero menor o igual que variable";} // 1 <= patata
-	| INT NOT_EQUAL VAR_NAME {$$ = "Numero no igual a variable";} // 1 != patata
-	| INT COMPARE INT {$$ = "Numero igual a numero";} // 1 == 1
-	| INT MORE INT {$$ = "Numero mayor que numero";} // 1 > 0
-	| INT LESS INT {$$ = "Numero menor que numero";} // 1 < 2
-	| INT GREATER_THAN INT {$$ = "Numero mayor o igual que numero";} // 1 >= 1
-	| INT LESSER_THAN INT {$$ = "Numero menor o igual que numero";} // 1 <= 1
-	| INT NOT_EQUAL INT {$$ = "Numero no igual a numero";} // 1 != 0
+	VAR_NAME BOOLEAN_OPERATORS VAR_NAME {$$="Operacion booleana variables\n";}
+	| VAR_NAME BOOLEAN_OPERATORS INT {$$="Operacion booleana variable - numero\n";}
+	| VAR_NAME BOOLEAN_OPERATORS STR {$$="Operacion booleana variable - string\n";}
+	| VAR_NAME BOOLEAN_OPERATORS FLOAT {$$="Operacion booleana variable - float\n";}
+	| INT BOOLEAN_OPERATORS INT {$$="Operacion booleana numero - numero\n";}
+	| STR BOOLEAN_OPERATORS STR {$$="Operacion booleana string - string\n";}
+	| FLOAT BOOLEAN_OPERATORS FLOAT {$$="Operacion booleana float - float\n";}
+	| VAR_NAME COMPARE BOOLEAN_VAR {$$="Variable igual a True/False\n";}
 ;
-// operaciones con and y or
-BOOLEAN_MIX:
-	BOOLEAN_OP AND BOOLEAN_OP {$$ = "Operacion booleana Y operacion booleana";} // patata > 1 and patata < 2
-	| BOOLEAN_OP OR BOOLEAN_OP {$$ = "Operacion booleana O operacion booleana";} // patata > 1 or patata < 2
-	| RIGHT BOOLEAN_OP AND BOOLEAN_OP LEFT {$$ = "Operacion booleana Y con parentesis";} // (patata > 1 and patata < 2)
-	| RIGHT BOOLEAN_OP OR BOOLEAN_OP LEFT {$$ = "Operacion booleana O con parentesis";} // (patata > 1 or patata < 2)
 
 
 %%
@@ -139,10 +139,7 @@ int main(int argc, char *argv[]) {
              yyparse();
 
 		}
-        /*int i = 0;
-        for(i = 0;i < argc;i++){
-        printf("%s\n",argv[i]);
-        }*/
+
 }
 
 
