@@ -1,7 +1,10 @@
-1+1
+procedure Main is
+if a<1 then
+1+1+1
 1-1
 a > 1
 a == a
 a == true
 c >= c
 1.5 != 2.0
+end Main;

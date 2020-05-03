@@ -17,13 +17,14 @@ void yyerror(const char* s);
 	float fval;
 	char* sval;
 }
+
 // TIPOS
 %token<ival> INT
 %token<fval> FLOAT
 // TOKENS GENERALES
 %token PLUS MINUS MULTIPLY DIVIDE // operadores
 %token LEFT RIGHT OPEN CLOSE // parentesis/llaves
-%token WHILE BOOL FOR CASE INTEGERDEC FLOATDEC CHARDEC STRINGDEC STR VAR_NAME CHAR AND OR // palabras reservadas
+%token WHILE BOOL FOR CASE STR VAR_NAME CHAR AND OR PROC IS END BEG INTEGERDEC FLOATDEC CHARDEC STRINGDEC IF THEN // palabras reservadas
 %token LESS MORE EQUAL GREATER_THAN LESSER_THAN NOT_EQUAL COMPARE  // operadores logicos
 %token COMMENT COLON SEMICOLON QUOTE //simbolos reservados
 %token NEWLINE QUIT //cosas de flex
@@ -33,12 +34,16 @@ void yyerror(const char* s);
 %left PLUS MINUS
 %left MULTIPLY DIVIDE
 
+//RESERVADOS
+%type<sval> PR
+
+//OPERACIONES
 %type<sval> OPERATION
 %type<sval> DECL
-//%type<sval> ASIG
 
 // Booleanos
 %type<sval> BOOLEAN_OP
+%type<sval> IF_COND 
 %type<sval> BOOLEAN_OPERATORS
 // %type<sval> BOOLEAN_MIX
 %type<sval> BOOLEAN_VAR
@@ -52,10 +57,11 @@ calculation:
 ;
 
 line: OPERATION { printf("%s", $1); }
+	| IF_COND {printf("%s", $1);}
 	| BOOLEAN_OP {printf("%s", $1);}
+	| PR {printf("%s", $1);}
 	// | BOOLEAN_MIX {printf("%s",%1);}
 	| DECL {printf("%s",$1);}
-	//| ASIG {printf("%s",$1);}
     | QUIT { printf("bye!\n"); exit(0); }
 ;
 // Declaracion y asignacion de variables
@@ -73,8 +79,19 @@ DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$ = "Declaracion de integer\n";}
 	| VAR_NAME COLON EQUAL CHAR SEMICOLON { $$ = "Asignacion de char\n";}
 	| VAR_NAME COLON EQUAL BOOLEAN_VAR SEMICOLON {$$="Asignacion de boolean\n";}
 	
+;
+
+PR:
+	PROC VAR_NAME IS {$$ = "Procedure\n";}
+	| END VAR_NAME SEMICOLON {$$ = "End procedure";}
+;
+
+IF_COND: 
+	IF BOOLEAN_OP THEN {$$ = "Sentencia IF\n";}
 
 ;
+
+
 // Operaciones aritmeticas
 OPERATION: INT {$$ = "INTEGER";}
 	| FLOAT {$$ = "FLOAT";}
