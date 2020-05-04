@@ -1,10 +1,16 @@
-Procedure
-Sentencia IF
-Operacion aritmetica
-Operacion aritmetica
-Operacion booleana variable - numero
-Operacion booleana variables
-Variable igual a True/False
-Operacion booleana variables
-Operacion booleana float - float
-End procedure
+Instruccion 1 Procedure
+Instruccion 2 Sentencia IF
+Instruccion 4 Operacion aritmetica
+Instruccion 5 Operacion aritmetica
+Instruccion 6 Operacion aritmetica
+Instruccion 6 Operacion booleana variable - numero
+Instruccion 7 Operacion booleana variables
+Instruccion 8 Variable igual a True/False
+Instruccion 9 Operacion booleana variables
+Instruccion 10 Operacion booleana float - float
+Instruccion 10 Comentario
+Instruccion 11 Bucle for
+Instruccion 12 Begin
+Instruccion 13 Asignacion de int/float
+Instruccion 14 Fin de for
+Instruccion 15 End procedure

@@ -66,21 +66,24 @@
      CHARDEC = 283,
      STRINGDEC = 284,
      IF = 285,
-     LESS = 286,
-     MORE = 287,
-     EQUAL = 288,
-     GREATER_THAN = 289,
-     LESSER_THAN = 290,
-     NOT_EQUAL = 291,
-     COMPARE = 292,
-     COMMENT = 293,
-     COLON = 294,
-     SEMICOLON = 295,
-     QUOTE = 296,
-     NEWLINE = 297,
-     QUIT = 298,
-     TRUE = 299,
-     FALSE = 300
+     THEN = 286,
+     DOT = 287,
+     LOOP_ = 288,
+     LESS = 289,
+     MORE = 290,
+     EQUAL = 291,
+     GREATER_THAN = 292,
+     LESSER_THAN = 293,
+     NOT_EQUAL = 294,
+     COMPARE = 295,
+     COMMENT = 296,
+     COLON = 297,
+     SEMICOLON = 298,
+     QUOTE = 299,
+     NEWLINE = 300,
+     QUIT = 301,
+     TRUE = 302,
+     FALSE = 303
    };
 #endif
 
@@ -100,7 +103,7 @@ typedef union YYSTYPE
 
 
 /* Line 1685 of yacc.c  */
-#line 104 "bison.tab.h"
+#line 107 "bison.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

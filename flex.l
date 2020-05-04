@@ -3,7 +3,8 @@
 %{
 #include <stdio.h>
 #include "y.tab.h"
-//#include "bison.tab.h"
+
+extern int line_num;
 
 %}
 
@@ -17,10 +18,13 @@ char (\'.{1}\')
 fnum ([0-9])+[\,|\.]([0-9])+
 inum ([0-9])+
 bool (bool|boolean)
+loop_ (loop|LOOP)
 int (integer)
 stringd (String)
 character (character)
 float (float)
+linea (\n)
+in (in|IN)
 while (while|WHILE)
 for (for|FOR)
 case (case|CASE)
@@ -28,20 +32,23 @@ false (false|FALSE)
 true (true|TRUE)
 and (and|AND)
 or (or|OR)
-if(if|IF)
+if (if|IF)
 then (then|THEN)
 
 
 %%
+{linea} {line_num += 1;}
 [ \0]	; // ignore all null
-[ \n]   ; // ignore all whitespace
 {true}  {return TRUE;} //funciona por algun motivo, hay que poner esto arriba del todo
 {end} 	{return END;}
 {begin}	{return BEG;}
 {then}  {return THEN;}
 {proc}  {return PROC;}
+{in}   	{return IN;}
 {is}  	{return IS;}
+{for}  	{return FOR;}
 {if}  	{return IF;}
+{loop_}  {return LOOP_;}
 {false} {return FALSE;}
 {char}  {return CHAR;}
 {bool}  {return BOOL;}
@@ -73,5 +80,6 @@ then (then|THEN)
 "<="    {return LESSER_THAN;}
 "!="    {return NOT_EQUAL;}
 "=="    {return COMPARE;}
+"."		{return DOT;}
 
 %%

@@ -1,10 +1,15 @@
 procedure Main is
 if a<1 then
-1+1+1
+1+1
+1+1
 1-1
 a > 1
 a == a
 a == true
 c >= c
-1.5 != 2.0
+1.5 != 2.0 --hola
+for I in 1..N loop
+begin
+a := 123;
+end loop;
 end Main;

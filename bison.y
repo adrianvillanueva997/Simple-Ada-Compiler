@@ -9,6 +9,8 @@ extern int yyparse();
 extern FILE *yyin;
 extern FILE *yyout;
 
+int line_num = 1;
+
 void yyerror(const char* s);
 %}
 
@@ -18,13 +20,15 @@ void yyerror(const char* s);
 	char* sval;
 }
 
+%error-verbose
+
 // TIPOS
 %token<ival> INT
 %token<fval> FLOAT
 // TOKENS GENERALES
 %token PLUS MINUS MULTIPLY DIVIDE // operadores
 %token LEFT RIGHT OPEN CLOSE // parentesis/llaves
-%token WHILE BOOL FOR CASE STR VAR_NAME CHAR AND OR PROC IS END BEG INTEGERDEC FLOATDEC CHARDEC STRINGDEC IF THEN // palabras reservadas
+%token WHILE BOOL FOR CASE STR VAR_NAME CHAR AND OR PROC IS END BEG INTEGERDEC FLOATDEC CHARDEC STRINGDEC IF THEN DOT LOOP_ IN   // palabras reservadas
 %token LESS MORE EQUAL GREATER_THAN LESSER_THAN NOT_EQUAL COMPARE  // operadores logicos
 %token COMMENT COLON SEMICOLON QUOTE //simbolos reservados
 %token NEWLINE QUIT //cosas de flex
@@ -47,6 +51,11 @@ void yyerror(const char* s);
 %type<sval> BOOLEAN_OPERATORS
 // %type<sval> BOOLEAN_MIX
 %type<sval> BOOLEAN_VAR
+%type<sval> COM
+%type<sval> LOOP
+%type<sval> BEGIN
+
+
 
 %start calculation
 
@@ -56,12 +65,15 @@ calculation:
 	   | calculation line
 ;
 
-line: OPERATION { printf("%s", $1); }
-	| IF_COND {printf("%s", $1);}
-	| BOOLEAN_OP {printf("%s", $1);}
-	| PR {printf("%s", $1);}
-	// | BOOLEAN_MIX {printf("%s",%1);}
-	| DECL {printf("%s",$1);}
+line: OPERATION {  printf("Instruccion %d ",line_num); printf("%s", $1);}
+	| IF_COND {  printf("Instruccion %d ",line_num); printf("%s", $1);}
+	| BOOLEAN_OP { printf("Instruccion %d ",line_num); printf("%s", $1);}
+	| PR { printf("Instruccion %d ",line_num); printf("%s", $1);}
+	| LOOP { printf("Instruccion %d ",line_num); printf("%s", $1);}
+	| DECL { printf("Instruccion %d ",line_num); printf("%s",$1);}
+	| COM  { printf("Instruccion %d ",line_num); printf("%s",$1);}
+	| error {yyerror; printf("Instruccion %d ",line_num); printf("Error en esta instruccion\n");}
+	| BEGIN  { printf("Instruccion %d ",line_num); printf("%s",$1);}
     | QUIT { printf("bye!\n"); exit(0); }
 ;
 // Declaracion y asignacion de variables
@@ -80,6 +92,22 @@ DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$ = "Declaracion de integer\n";}
 	| VAR_NAME COLON EQUAL BOOLEAN_VAR SEMICOLON {$$="Asignacion de boolean\n";}
 	
 ;
+
+LOOP: FOR VAR_NAME IN INT DOT DOT VAR_NAME LOOP_ {$$="Bucle for\n";}
+	| FOR VAR_NAME IN VAR_NAME DOT DOT VAR_NAME LOOP_ {$$="Bucle for\n";}
+	| FOR VAR_NAME IN VAR_NAME DOT DOT INT LOOP_ {$$="Bucle for\n";}
+	| FOR VAR_NAME IN INT DOT DOT INT LOOP_ {$$="Bucle for\n";}
+	| END LOOP_ SEMICOLON {$$="Fin de for\n";}
+
+;
+COM:
+	COMMENT VAR_NAME {$$ = "Comentario\n";}
+
+;
+
+BEGIN:
+	BEG {$$ = "Begin\n";}
+	| END SEMICOLON {$$ = "End begin\n";}
 
 PR:
 	PROC VAR_NAME IS {$$ = "Procedure\n";}
@@ -111,12 +139,16 @@ BOOLEAN_OPERATORS:
 	| GREATER_THAN {$$=">=\n";}
 	| LESSER_THAN {$$="<=\n";}
 	| NOT_EQUAL {$$="!=\n";}
+
 ;
+
 // VARIABLES BOOLEANAS
 BOOLEAN_VAR:
 	TRUE {$$="True\n";}
 	| FALSE {$$="False\n";}
+
 ;
+
 /*
 // Operaciones booleanas con and y or
 BOOLEAN_MIX:
@@ -124,6 +156,7 @@ BOOLEAN_MIX:
 	BOOLEAN_OP OR BOOLEAN_OP {$$="Expresiones booleanas con OR\n";}
 
 ;
+
 */
 // Operaciones booleanas
 BOOLEAN_OP:
@@ -135,6 +168,7 @@ BOOLEAN_OP:
 	| STR BOOLEAN_OPERATORS STR {$$="Operacion booleana string - string\n";}
 	| FLOAT BOOLEAN_OPERATORS FLOAT {$$="Operacion booleana float - float\n";}
 	| VAR_NAME COMPARE BOOLEAN_VAR {$$="Variable igual a True/False\n";}
+
 ;
 
 
@@ -162,5 +196,4 @@ int main(int argc, char *argv[]) {
 
 void yyerror(const char* s) {
 	fprintf(stderr, "Parse error: %s\n", s);
-	exit(1);
 }
