@@ -28,10 +28,10 @@ void yyerror(const char* s);
 // TOKENS GENERALES
 %token PLUS MINUS MULTIPLY DIVIDE // operadores
 %token LEFT RIGHT OPEN CLOSE // parentesis/llaves
-%token WHILE BOOL FOR CASE STR VAR_NAME CHAR AND OR PROC IS END BEG INTEGERDEC FLOATDEC CHARDEC STRINGDEC IF THEN DOT LOOP_ IN   // palabras reservadas
-%token LESS MORE EQUAL GREATER_THAN LESSER_THAN NOT_EQUAL COMPARE  // operadores logicos
+%token WHILE BOOL FOR CASE STR VAR_NAME CHAR AND OR PROC IS END BEG INTEGERDEC FLOATDEC CHARDEC STRINGDEC IF THEN DOT LOOP_ IN ELSE ELSIF   // palabras reservadas
+%token LESS MORE EQUAL GREATER_THAN LESSER_THAN NOT_EQUAL  // operadores logicos
 %token COMMENT COLON SEMICOLON QUOTE //simbolos reservados
-%token NEWLINE QUIT //cosas de flex
+%token NEWLINE //cosas de flex
 %token TRUE FALSE // operadores booleanos
 
 // PRIORIDADES
@@ -65,16 +65,14 @@ calculation:
 	   | calculation line
 ;
 
-line: OPERATION {  printf("Instruccion %d ",line_num); printf("%s", $1);}
-	| IF_COND {  printf("Instruccion %d ",line_num); printf("%s", $1);}
-	| BOOLEAN_OP { printf("Instruccion %d ",line_num); printf("%s", $1);}
-	| PR { printf("Instruccion %d ",line_num); printf("%s", $1);}
-	| LOOP { printf("Instruccion %d ",line_num); printf("%s", $1);}
-	| DECL { printf("Instruccion %d ",line_num); printf("%s",$1);}
-	| COM  { printf("Instruccion %d ",line_num); printf("%s",$1);}
-	| error {yyerror; printf("Instruccion %d ",line_num); printf("Error en esta instruccion\n");}
-	| BEGIN  { printf("Instruccion %d ",line_num); printf("%s",$1);}
-    | QUIT { printf("bye!\n"); exit(0); }
+line:
+	IF_COND {  printf("Linea %d ",line_num); printf("%s", $1);}
+	| PR { printf("Linea %d ",line_num); printf("%s", $1);}
+	| LOOP { printf("Linea %d ",line_num); printf("%s", $1);}
+	| DECL { printf("Linea %d ",line_num); printf("%s",$1);}
+	| COM  { printf("Linea %d ",line_num); printf("%s",$1);}
+	| error {yyerror; printf("Linea %d ",line_num); printf("Error en esta linea\n");}
+	| BEGIN  { printf("Linea %d ",line_num); printf("%s",$1);}
 ;
 // Declaracion y asignacion de variables
 DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$ = "Declaracion de integer\n";}
@@ -101,7 +99,7 @@ LOOP: FOR VAR_NAME IN INT DOT DOT VAR_NAME LOOP_ {$$="Bucle for\n";}
 
 ;
 COM:
-	COMMENT VAR_NAME {$$ = "Comentario\n";}
+	COMMENT {$$ = "Comentario\n";}
 
 ;
 
@@ -116,12 +114,17 @@ PR:
 
 IF_COND: 
 	IF BOOLEAN_OP THEN {$$ = "Sentencia IF\n";}
+	| END IF SEMICOLON {$$ = "End IF\n";}
+	| ELSE {$$ = "Else\n";}
+	| ELSIF {$$ = "Elsif\n";}
+
 
 ;
 
 
 // Operaciones aritmeticas
 OPERATION: INT {$$ = "INTEGER";}
+	| VAR_NAME {$$ = "VAR";}
 	| FLOAT {$$ = "FLOAT";}
 	| OPERATION PLUS OPERATION { $$ = "Operacion aritmetica\n";} // 1 + 1
 	| OPERATION MINUS OPERATION { $$ = "Operacion aritmetica\n";} // 1 -1
@@ -133,7 +136,7 @@ OPERATION: INT {$$ = "INTEGER";}
 
 // Expresiones booleanas
 BOOLEAN_OPERATORS:
-	COMPARE {$$ = "==\n";}
+	EQUAL {$$ = "==\n";}
 	| MORE {$$=">\n";}
 	| LESS {$$== "<\n";}
 	| GREATER_THAN {$$=">=\n";}
@@ -167,7 +170,7 @@ BOOLEAN_OP:
 	| INT BOOLEAN_OPERATORS INT {$$="Operacion booleana numero - numero\n";}
 	| STR BOOLEAN_OPERATORS STR {$$="Operacion booleana string - string\n";}
 	| FLOAT BOOLEAN_OPERATORS FLOAT {$$="Operacion booleana float - float\n";}
-	| VAR_NAME COMPARE BOOLEAN_VAR {$$="Variable igual a True/False\n";}
+	| VAR_NAME EQUAL BOOLEAN_VAR {$$="Variable igual a True/False\n";}
 
 ;
 

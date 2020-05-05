@@ -1,16 +1,28 @@
-Instruccion 1 Procedure
-Instruccion 2 Sentencia IF
-Instruccion 4 Operacion aritmetica
-Instruccion 5 Operacion aritmetica
-Instruccion 6 Operacion aritmetica
-Instruccion 6 Operacion booleana variable - numero
-Instruccion 7 Operacion booleana variables
-Instruccion 8 Variable igual a True/False
-Instruccion 9 Operacion booleana variables
-Instruccion 10 Operacion booleana float - float
-Instruccion 10 Comentario
-Instruccion 11 Bucle for
-Instruccion 12 Begin
-Instruccion 13 Asignacion de int/float
-Instruccion 14 Fin de for
-Instruccion 15 End procedure
+Linea 1 Procedure
+Linea 4 Declaracion de char
+Linea 5 Declaracion de integer
+Linea 6 Declaracion de integer
+Linea 8 Begin
+Linea 10 Begin
+Linea 11 Asignacion de int/float
+Linea 12 End begin
+Linea 13 Begin
+Linea 14 Asignacion de int/float
+Linea 15 End begin
+Linea 17 Sentencia IF
+Linea 18 Begin
+Linea 19 Asignacion de char
+Linea 20 End begin
+Linea 21 Else
+Linea 22 Begin
+Linea 23 Asignacion de char
+Linea 24 End begin
+Linea 26 End IF
+Linea 27 Begin
+Linea 28 Asignacion de int/float
+Linea 29 Bucle for
+Linea 30 Asignacion de int/float
+Linea 31 Fin de for
+Linea 32 End begin
+Linea 33 Comentario
+Linea 34 End procedure

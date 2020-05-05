@@ -9,6 +9,7 @@ extern int line_num;
 %}
 
 variable_name ([a-zA-Z])+([a-zA-Z]|[0-9]|[_])*
+dot ([\.])
 proc (procedure|PROCEDURE)
 is (is|IS)
 end (end|END)
@@ -18,11 +19,13 @@ char (\'.{1}\')
 fnum ([0-9])+[\,|\.]([0-9])+
 inum ([0-9])+
 bool (bool|boolean)
+else (else|ELSE)
+elsif (elsif|ELSIF)
 loop_ (loop|LOOP)
-int (integer)
-stringd (String)
-character (character)
-float (float)
+int (integer|Integer)
+stringd (string|String)
+character (Character|character)
+float (Float|float)
 linea (\n)
 in (in|IN)
 while (while|WHILE)
@@ -37,10 +40,13 @@ then (then|THEN)
 
 
 %%
+{dot}	{return DOT;}
 {linea} {line_num += 1;}
 [ \0]	; // ignore all null
 {true}  {return TRUE;} //funciona por algun motivo, hay que poner esto arriba del todo
 {end} 	{return END;}
+{else} 	{return ELSE;}
+{elsif} {return ELSIF;}
 {begin}	{return BEG;}
 {then}  {return THEN;}
 {proc}  {return PROC;}
@@ -75,11 +81,10 @@ then (then|THEN)
 "<"		{return LESS;}
 ">"		{return MORE;}
 "="		{return EQUAL;}
-"--"	{return COMMENT;}
 ">="    {return GREATER_THAN;}
 "<="    {return LESSER_THAN;}
 "!="    {return NOT_EQUAL;}
-"=="    {return COMPARE;}
-"."		{return DOT;}
+"--".*  {return COMMENT;}
+
 
 %%
