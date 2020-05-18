@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 extern int yylex();
 extern int yyparse();
@@ -10,6 +11,20 @@ extern FILE *yyin;
 extern FILE *yyout;
 
 int line_num = 1;
+
+//Declaraciones de la tabla de simbolos
+
+struct symb{    
+char* vname;    
+int vval;   
+char* type; 
+};
+
+//int symbols[52];
+
+struct symb symbols[52];
+
+void updateSymbolVal(char* name,char* type,int val);
 
 void yyerror(const char* s);
 %}
@@ -25,10 +40,12 @@ void yyerror(const char* s);
 // TIPOS
 %token<ival> INT
 %token<fval> FLOAT
+%token<sval> VAR
+
 // TOKENS GENERALES
 %token PLUS MINUS MULTIPLY DIVIDE // operadores
 %token LEFT RIGHT OPEN CLOSE // parentesis/llaves
-%token WHILE BOOL FOR CASE STR VAR_NAME CHAR AND OR PROC IS END BEG INTEGERDEC FLOATDEC CHARDEC STRINGDEC IF THEN DOT LOOP_ IN ELSE ELSIF   // palabras reservadas
+%token WHILE BOOL FOR CASE STR  CHAR AND OR PROC IS END BEG INTEGERDEC FLOATDEC CHARDEC STRINGDEC IF THEN DOT LOOP_ IN ELSE ELSIF   // palabras reservadas
 %token LESS MORE EQUAL GREATER_THAN LESSER_THAN NOT_EQUAL  // operadores logicos
 %token COMMENT COLON SEMICOLON QUOTE //simbolos reservados
 %token NEWLINE //cosas de flex
@@ -42,7 +59,7 @@ void yyerror(const char* s);
 %type<sval> PR
 
 //OPERACIONES
-%type<sval> OPERATION
+%type<ival> OPERATION
 %type<sval> DECL
 
 // Booleanos
@@ -54,6 +71,8 @@ void yyerror(const char* s);
 %type<sval> COM
 %type<sval> LOOP
 %type<sval> BEGIN
+%type<sval> VAR_NAME
+
 
 
 
@@ -74,13 +93,13 @@ line:
 	| error {yyerror; printf("Linea %d ",line_num); printf("Error en esta linea\n");}
 	| BEGIN  { printf("Linea %d ",line_num); printf("%s",$1);}
 ;
-// Declaracion y asignacion de variables
+	
 DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$ = "Declaracion de integer\n";}
 	| VAR_NAME COLON STRINGDEC SEMICOLON { $$ = "Declaracion de string\n";}
 	| VAR_NAME COLON FLOATDEC SEMICOLON { $$ = "Declaracion de float\n";}
 	| VAR_NAME COLON CHARDEC SEMICOLON { $$ = "Declaracion de char\n";}
 	| VAR_NAME COLON BOOL SEMICOLON {$$="Declaracion de boolean\n";}
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION SEMICOLON { $$ = "Asignacion y declaracion de integer\n";}
+	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION SEMICOLON {$$ = "Declaracion y asignacion de int\n" ;updateSymbolVal($1,"integer",$6);}
 	| VAR_NAME COLON EQUAL OPERATION SEMICOLON { $$ = "Asignacion de int/float\n";}
 	| VAR_NAME COLON STRINGDEC COLON EQUAL STR SEMICOLON { $$ = "Asignacion y declaracion de string\n";}
 	| VAR_NAME COLON EQUAL STR SEMICOLON { $$ = "Asignacion de string\n";}
@@ -103,6 +122,10 @@ COM:
 
 ;
 
+VAR_NAME:
+	VAR {$$ = $1;}
+;
+
 BEGIN:
 	BEG {$$ = "Begin\n";}
 	| END SEMICOLON {$$ = "End begin\n";}
@@ -117,22 +140,21 @@ IF_COND:
 	| END IF SEMICOLON {$$ = "End IF\n";}
 	| ELSE {$$ = "Else\n";}
 	| ELSIF {$$ = "Elsif\n";}
-
-
 ;
 
 
 // Operaciones aritmeticas
-OPERATION: INT {$$ = "INTEGER";}
-	| VAR_NAME {$$ = "VAR";}
-	| FLOAT {$$ = "FLOAT";}
-	| OPERATION PLUS OPERATION { $$ = "Operacion aritmetica\n";} // 1 + 1
-	| OPERATION MINUS OPERATION { $$ = "Operacion aritmetica\n";} // 1 -1
-	| OPERATION MULTIPLY OPERATION { $$ = "Operacion aritmetica\n";} // 1 * 1
-	| OPERATION DIVIDE OPERATION { $$ = "Operacion aritmetica\n";} // 1 / 1
-	| LEFT OPERATION RIGHT { $$ = "Operacion aritmetica\n";} // operacion entre parentesis
+OPERATION: INT {$$ = $1;}
+	//| VAR_NAME {$1;}
+	//| FLOAT {$1;}
+	| OPERATION PLUS OPERATION {$$ = $1 + $3;} // 1 + 1
+	| OPERATION MINUS OPERATION { $$ = $1 - $3;} // 1 -1
+	| OPERATION MULTIPLY OPERATION { $$ = $1 * $3;} // 1 * 1
+	| OPERATION DIVIDE OPERATION { $$ = $1 / $3;} // 1 / 1
+	//| LEFT OPERATION RIGHT { $$ = "Operacion aritmetica\n";} // operacion entre parentesis
 
 ;
+
 
 // Expresiones booleanas
 BOOLEAN_OPERATORS:
@@ -177,8 +199,18 @@ BOOLEAN_OP:
 
 %%
 
+void updateSymbolVal(char* name, char* type , int val){
+			symbols[0].vname = name;
+			symbols[0].vval = val;
+			symbols[0].type = type;
+		}
+
 int main(int argc, char *argv[]) {
 
+		for(int a = 0; a < 52; a++){
+			symbols[a].vname = 0;
+			symbols[a].vval = 0;
+		}
 
 		if (argc == 1) {
 
@@ -193,6 +225,12 @@ int main(int argc, char *argv[]) {
              yyparse();
 
 		}
+		for(int b = 0; b < 52; b++){
+			printf("%s",symbols[b].vname);
+			printf("%i ",symbols[b].vval);
+			printf("%s",symbols[b].type);
+		}		
+
 
 }
 
@@ -200,3 +238,6 @@ int main(int argc, char *argv[]) {
 void yyerror(const char* s) {
 	fprintf(stderr, "Parse error: %s\n", s);
 }
+
+	
+	

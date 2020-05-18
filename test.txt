@@ -1,8 +1,1 @@
-procedure Main is
-if a<1 then
-1-1 1+1 --hola
-for I in 1..N loop
-begin
-a := 123;
-end loop;
-end Main;
+hola:integer:=1+1;

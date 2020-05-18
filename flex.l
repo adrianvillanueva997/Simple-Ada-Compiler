@@ -67,7 +67,7 @@ then (then|THEN)
 {fnum}	{yylval.fval = atof(yytext); return FLOAT;}
 {inum}	{yylval.ival = atoi(yytext); return INT;}
 {string}  {return STR;}
-{variable_name}  {return VAR_NAME;}
+{variable_name}  {yylval.sval = strdup(yytext);return VAR;}
 ":"		{return COLON;}
 ";"		{return SEMICOLON;}
 "{"		{return OPEN;}
