@@ -1,1 +1,3 @@
-hola:integer:=1+1;
+hola:integer:=1+1+1+1+1+1+1+1;
+hola:float:=25.0;
+pene:string:="patata";

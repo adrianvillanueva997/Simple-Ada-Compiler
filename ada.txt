@@ -8,15 +8,16 @@ procedure Main is
 begin
    
    begin
-      variable_int1 := 1;
+      variable_int1 := 10;
    end;
    begin
-      variable_int2 := 2;
+      variable_int2 := 1.2;
+      variable_int3 := variable_int1 + 1;
    end;
 
    if variable_int1 = variable_int2 then
       begin
-         variable_char := 'a';
+         variable_char := "aa";
       end;
    else
       begin
@@ -25,9 +26,9 @@ begin
         
    end if;
    begin
-      variable_int1 := 0;
+      variable_int1 := 2;
       for I in 1..10 loop
-         variable_int2 := variable_int1 + 1;
+         variable_int2 := 1.5;
       end loop;
    end;
       --  Insert code here.

@@ -15,6 +15,10 @@ is (is|IS)
 end (end|END)
 begin (begin|BEGIN)
 string (\".+\")
+plus (\+)
+minus (\-)
+multiply (\*)
+divide (\/)
 char (\'.{1}\')
 fnum ([0-9])+[\,|\.]([0-9])+
 inum ([0-9])+
@@ -56,7 +60,7 @@ then (then|THEN)
 {if}  	{return IF;}
 {loop_}  {return LOOP_;}
 {false} {return FALSE;}
-{char}  {return CHAR;}
+{char}  {yylval.sval = strdup(yytext);return CHAR;}
 {bool}  {return BOOL;}
 {and} 	{return AND;}
 {or} 	{return OR;}
@@ -66,16 +70,16 @@ then (then|THEN)
 {stringd} {return STRINGDEC;}
 {fnum}	{yylval.fval = atof(yytext); return FLOAT;}
 {inum}	{yylval.ival = atoi(yytext); return INT;}
-{string}  {return STR;}
+{string}  {yylval.sval = strdup(yytext);return STR;}
 {variable_name}  {yylval.sval = strdup(yytext);return VAR;}
 ":"		{return COLON;}
 ";"		{return SEMICOLON;}
 "{"		{return OPEN;}
 "}"		{return CLOSE;}
-"+"		{return PLUS;}
-"-"		{return MINUS;}
-"*"		{return MULTIPLY;}
-"/"		{return DIVIDE;}
+{plus}	{yylval.sval = strdup(yytext);return PLUS;}
+{minus}	{yylval.sval = strdup(yytext);return MINUS;}
+{multiply}	{yylval.sval = strdup(yytext);return MULTIPLY;}
+{divide}	{yylval.sval = strdup(yytext);return DIVIDE;}
 "("		{return LEFT;}
 ")"		{return RIGHT;}
 "<"		{return LESS;}
