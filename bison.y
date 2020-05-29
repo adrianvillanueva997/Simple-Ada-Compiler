@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <values.h>
 
 extern int yylex();
 extern int yyparse();
@@ -16,16 +17,33 @@ int size = 52;
 
 int elementosOcupados = 0;
 
+//Declaraciones del AST
+
+struct ast {
+ char* nodetype;
+ struct ast *l;
+ struct ast *r;
+};
+
+struct asign {
+ char* nodetype;
+ struct ast *a;
+};
+
+struct numval {
+	int nodetype;
+	double number;
+};
+
 //Declaraciones de la tabla de simbolos
 
 struct symb{    
-char* vname;    
-int vvali;   
-float vvalf;
-char* vvals;
-char* type; 
+	char* vname;    
+	int vvali;   
+	float vvalf;
+	char* vvals;
+	char* type; 
 };
-
 
 struct symb tabla[52];
 
@@ -34,21 +52,33 @@ struct symb tabla[52];
 void insertarElemento(struct symb *tabla, int *size, int valor, char* svalor, float fvalor, char *variable, int *elementosOcupados, char* type );
 void inicializarArray(struct symb *tabla, int inicio, int fin);
 int buscarValor(struct symb *tabla, char *nombre, char *tipo, int *size);
+struct ast *createAST(char* nodetype, struct ast *l, struct ast *r);
+struct ast *createNum(double d);
 
 void yyerror(const char* s);
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 %}
 
-%union {
+%union { 	
 	int ival;
 	float fval;
 	char* sval;
+
+	struct attributes{
+	int i;
+	float f;
+	char* s;
+	struct ast *a;
+	}st;
 }
 
 %error-verbose
 
 // TIPOS
-%token<ival> INT
-%token<fval> FLOAT
+%token<st> INT
+%token<st> FLOAT
 %token<sval> VAR
 %token<sval> STR
 %token<sval> CHAR
@@ -74,22 +104,22 @@ void yyerror(const char* s);
 %type<sval> PR
 
 //OPERACIONES
-%type<ival> OPERATION
-%type<fval> OPERATION2
+%type<st> OPERATION
+%type<st> OPERATION2
 %type<sval> SOP
-%type<sval> DECL
+%type<st> DECL
+%type<st> OPER
 
 // Booleanos
-%type<sval> BOOLEAN_OP
-%type<sval> IF_COND 
+%type<st> BOOLEAN_OP
+%type<st> IF_COND 
 %type<sval> BOOLEAN_OPERATORS
 // %type<sval> BOOLEAN_MIX
 %type<sval> BOOLEAN_VAR
-%type<sval> COM
+%type<st> COM
 %type<sval> LOOP
 %type<sval> BEGIN
 %type<sval> VAR_NAME
-
 
 
 
@@ -102,121 +132,73 @@ calculation:
 ;
 
 line:
-	IF_COND {  printf("Linea %d ",line_num); printf("%s", $1);}
+	IF_COND {  printf("Linea %d ",line_num); printf("%s", $1.s);}
 	| PR { printf("Linea %d ",line_num); printf("%s", $1);}
 	| LOOP { printf("Linea %d ",line_num); printf("%s", $1);}
-	| DECL { printf("Linea %d ",line_num); printf("%s",$1);}
-	| COM  { printf("Linea %d ",line_num); printf("%s",$1);}
+	| DECL { printf("Linea %d ",line_num); printf("%s",$1.s);}
+	| COM  { printf("Linea %d ",line_num); printf("%s",$1.s);}
 	| error {yyerror; printf("Linea %d ",line_num); printf("Error en esta linea\n");}
 	| BEGIN  { printf("Linea %d ",line_num); printf("%s",$1);}
 ;
 	
-DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$ = "Declaracion de integer\n";}
-	| VAR_NAME COLON STRINGDEC SEMICOLON { $$ = "Declaracion de string\n";}
-	| VAR_NAME COLON FLOATDEC SEMICOLON { $$ = "Declaracion de float\n";}
-	| VAR_NAME COLON CHARDEC SEMICOLON { $$ = "Declaracion de char\n";}
-	| VAR_NAME COLON BOOL SEMICOLON {$$="Declaracion de boolean\n";}
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION SEMICOLON {$$ = "Declaracion y asignacion de int\n" ;
-	insertarElemento(tabla, &size, $6, "", 0.0, $1, &elementosOcupados, "integer" );}
+DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$.s = "Declaracion de integer\n"; printf("%s: .word \n ",$1);}
+	| VAR_NAME COLON STRINGDEC SEMICOLON { $$.s = "Declaracion de string\n"; printf("%s: .ascii \n ",$1);}
+	| VAR_NAME COLON FLOATDEC SEMICOLON { $$.s = "Declaracion de float\n"; printf("%s: .float \n ",$1);}
+	| VAR_NAME COLON CHARDEC SEMICOLON { $$.s = "Declaracion de char\n"; printf("%s: .byte \n ",$1);}
+	| VAR_NAME COLON BOOL SEMICOLON {$$.s="Declaracion de boolean\n"; printf("%s: .word \n ",$1);}
 
-	| VAR_NAME COLON FLOATDEC COLON EQUAL OPERATION2 SEMICOLON {$$ = "Declaracion y asignacion de float\n" ;
-	insertarElemento(tabla, &size, 0, "", $6, $1, &elementosOcupados, "float" );}
+	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION SEMICOLON {$$.s = "Declaracion y asignacion de int\n" ;
+	insertarElemento(tabla, &size, $6.i, "", 0.0, $1, &elementosOcupados, "integer" ); printf("%s: .word %i \n",$1,$6.i);}
 
-	| VAR_NAME COLON EQUAL OPERATION SEMICOLON { $$ = "Asignacion de int\n";
-	insertarElemento(tabla, &size, $4, "", 0.0, $1, &elementosOcupados, "integer" );}
+	| VAR_NAME COLON FLOATDEC COLON EQUAL OPERATION2 SEMICOLON {$$.s = "Declaracion y asignacion de float\n" ;
+	insertarElemento(tabla, &size, 0, "", $6.f, $1, &elementosOcupados, "float" ); printf("%s: .float %f \n",$1,$6);}
+
+	| VAR_NAME COLON EQUAL OPERATION SEMICOLON { $$.s = "Asignacion de int\n";
+	insertarElemento(tabla, &size, $4.i, "", 0.0, $1, &elementosOcupados, "integer" );}
 	
-	| VAR_NAME COLON EQUAL OPERATION2 SEMICOLON { $$ = "Asignacion de float\n";
-	insertarElemento(tabla, &size, 0, "", $4, $1, &elementosOcupados, "float" );}	
+	| VAR_NAME COLON EQUAL OPERATION2 SEMICOLON { $$.s = "Asignacion de float\n";
+	insertarElemento(tabla, &size, 0, "", $4.f, $1, &elementosOcupados, "float" );}	
 	
-	| VAR_NAME COLON STRINGDEC COLON EQUAL SOP SEMICOLON { $$ = "Asignacion y declaracion de string\n";
+	| VAR_NAME COLON STRINGDEC COLON EQUAL SOP SEMICOLON { $$.s = "Asignacion y declaracion de string\n";
 	insertarElemento(tabla, &size, 0, $6, 0.0, $1, &elementosOcupados, "string" );}
 	
-	| VAR_NAME COLON EQUAL STR SEMICOLON { $$ = "Asignacion de string\n";
+	| VAR_NAME COLON EQUAL STR SEMICOLON { $$.s = "Asignacion de string\n";
 	insertarElemento(tabla, &size, 0, $4, 0.0, $1, &elementosOcupados, "string" );}
 	
-	| VAR_NAME COLON FLOATDEC COLON EQUAL OPERATION SEMICOLON { $$ = "Asignacion y declaracion de float\n";}
+	| VAR_NAME COLON FLOATDEC COLON EQUAL OPERATION SEMICOLON { $$.s = "Asignacion y declaracion de float\n";}
 	
-	| VAR_NAME COLON CHARDEC COLON EQUAL CHAR SEMICOLON { $$ = "Asignacion y declaracion de char\n";
+	| VAR_NAME COLON CHARDEC COLON EQUAL CHAR SEMICOLON { $$.s = "Asignacion y declaracion de char\n";
 	insertarElemento(tabla, &size, 0, $6, 0.0, $1, &elementosOcupados, "string" );}
 	
-	| VAR_NAME COLON EQUAL CHAR SEMICOLON { $$ = "Asignacion de char\n";
+	| VAR_NAME COLON EQUAL CHAR SEMICOLON { $$.s = "Asignacion de char\n";
 	insertarElemento(tabla, &size, 0, $4, 0.0, $1, &elementosOcupados, "string" );}
 
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME PLUS OPERATION SEMICOLON {$$ = "Declaracion y asignacion de variable mas int\n" ;}
+	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME OPER OPERATION SEMICOLON {$$.s = "Declaracion y asignacion de operacion entre variable e int\n" ;}
 
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME MINUS OPERATION SEMICOLON {$$ = "Declaracion y asignacion de variable menos int\n" ;}
+	| VAR_NAME COLON EQUAL VAR_NAME OPER OPERATION SEMICOLON { $$.s = "Asignacion de de operacion entre variable e int\n" ;}
 
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME MULTIPLY OPERATION SEMICOLON {$$ = "Declaracion y asignacion de variable por int\n" ;}
+	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION OPER VAR_NAME SEMICOLON {$$.s = "Declaracion y asignacion de operacion entre int y variable\n" ;}
 
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME DIVIDE OPERATION SEMICOLON {$$ = "Declaracion y asignacion de variable entre int\n" ;}
+	| VAR_NAME COLON EQUAL OPERATION OPER VAR_NAME SEMICOLON { $$.s = "Asignacion de operacion entre int y variable\n" ;}
 
-	| VAR_NAME COLON EQUAL VAR_NAME PLUS OPERATION SEMICOLON { $$ = "Asignacion de variable mas int\n" ;}
+	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME OPER OPERATION2 SEMICOLON {$$.s = "Declaracion y asignacion de operacion entre variable y float\n" ;}
 
-	| VAR_NAME COLON EQUAL VAR_NAME MINUS OPERATION SEMICOLON { $$ = "Asignacion de variable menos int\n" ;}
+	| VAR_NAME COLON EQUAL VAR_NAME OPER OPERATION2 SEMICOLON { $$.s = "Asignacion de operacion entre float y variable\n" ;}
 
-	| VAR_NAME COLON EQUAL VAR_NAME MULTIPLY OPERATION SEMICOLON { $$ = "Asignacion de variable por int\n" ;}
+	| VAR_NAME COLON EQUAL OPERATION2 OPER VAR_NAME SEMICOLON { $$.s = "Asignacion de operacion entre variable y float\n" ;}
 
-	| VAR_NAME COLON EQUAL VAR_NAME DIVIDE OPERATION SEMICOLON { $$ = "Asignacion de variable entre int\n" ;}
+	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME OPER VAR_NAME SEMICOLON {$$.s = "Declaracion y asignacion de operacion entre variable y variable\n" ;}
 
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION PLUS VAR_NAME SEMICOLON {$$ = "Declaracion y asignacion de int mas variable \n" ;}
-
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION MINUS VAR_NAME SEMICOLON {$$ = "Declaracion y asignacion de int menos variable \n" ;}
-
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION MULTIPLY VAR_NAME SEMICOLON {$$ = "Declaracion y asignacion de int por variable \n" ;}
-
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION DIVIDE VAR_NAME SEMICOLON {$$ = "Declaracion y asignacion de int entre variable \n" ;}
-
-	| VAR_NAME COLON EQUAL OPERATION PLUS VAR_NAME SEMICOLON { $$ = "Asignacion de int mas variable\n" ;}
-
-	| VAR_NAME COLON EQUAL OPERATION MINUS VAR_NAME SEMICOLON { $$ = "Asignacion de int menos variable\n" ;}
-
-	| VAR_NAME COLON EQUAL OPERATION MULTIPLY VAR_NAME SEMICOLON { $$ = "Asignacion de int por variable\n" ;}
-
-	| VAR_NAME COLON EQUAL OPERATION DIVIDE VAR_NAME SEMICOLON { $$ = "Asignacion de int entre variable\n" ;}
-
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME PLUS OPERATION2 SEMICOLON {$$ = "Declaracion y asignacion de variable mas float\n" ;}
-
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME MINUS OPERATION2 SEMICOLON {$$ = "Declaracion y asignacion de variable menos float\n" ;}
-
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME MULTIPLY OPERATION2 SEMICOLON {$$ = "Declaracion y asignacion de variable por float\n" ;}
-
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME DIVIDE OPERATION2 SEMICOLON {$$ = "Declaracion y asignacion de variable entre float\n" ;}	
-
-	| VAR_NAME COLON EQUAL VAR_NAME PLUS OPERATION2 SEMICOLON { $$ = "Asignacion de variable mas float\n" ;}
-
-	| VAR_NAME COLON EQUAL VAR_NAME MINUS OPERATION2 SEMICOLON { $$ = "Asignacion de variable menos float\n" ;}
-
-	| VAR_NAME COLON EQUAL VAR_NAME MULTIPLY OPERATION2 SEMICOLON { $$ = "Asignacion de variable por float\n" ;}
-
-	| VAR_NAME COLON EQUAL VAR_NAME DIVIDE OPERATION2 SEMICOLON { $$ = "Asignacion de variable entre float\n" ;}
-
-	| VAR_NAME COLON EQUAL OPERATION2 PLUS VAR_NAME SEMICOLON { $$ = "Asignacion de float mas variable\n" ;}
-
-	| VAR_NAME COLON EQUAL OPERATION2 MINUS VAR_NAME SEMICOLON { $$ = "Asignacion de float menos variable\n" ;}
-
-	| VAR_NAME COLON EQUAL OPERATION2 MULTIPLY VAR_NAME SEMICOLON { $$ = "Asignacion de float por variable\n" ;}
-
-	| VAR_NAME COLON EQUAL OPERATION2 DIVIDE VAR_NAME SEMICOLON { $$ = "Asignacion de float entre variable\n" ;}
-
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME PLUS VAR_NAME SEMICOLON {$$ = "Declaracion y asignacion de variable mas variable\n" ;}
-
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME MINUS VAR_NAME SEMICOLON {$$ = "Declaracion y asignacion de variable menos variable\n" ;}
-
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME MULTIPLY VAR_NAME SEMICOLON {$$ = "Declaracion y asignacion de variable por variable\n" ;}
-
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME DIVIDE VAR_NAME SEMICOLON {$$ = "Declaracion y asignacion de variable entre variable\n" ;}
-
-	| VAR_NAME COLON EQUAL VAR_NAME PLUS VAR_NAME SEMICOLON { $$ = "Asignacion de variable mas variable\n" ;}
-
-	| VAR_NAME COLON EQUAL VAR_NAME MINUS VAR_NAME SEMICOLON { $$ = "Asignacion de variable menos variable\n" ;}
-
-	| VAR_NAME COLON EQUAL VAR_NAME MULTIPLY VAR_NAME SEMICOLON { $$ = "Asignacion de variable por variable\n" ;}
-
-	| VAR_NAME COLON EQUAL VAR_NAME DIVIDE VAR_NAME SEMICOLON { $$ = "Asignacion de variable entre variable\n" ;}
+	| VAR_NAME COLON EQUAL VAR_NAME OPER VAR_NAME SEMICOLON { $$.s = "Asignacion de operacion entre variable y variable\n" ;}
 	
-	| VAR_NAME COLON EQUAL BOOLEAN_VAR SEMICOLON {$$="Asignacion de boolean\n";}
+	| VAR_NAME COLON EQUAL BOOLEAN_VAR SEMICOLON {$$.s="Asignacion de boolean\n";}
 	
 ;
+
+OPER: PLUS {$$.s = "+";}
+	| MINUS {$$.s = "-";}
+	| DIVIDE {$$.s = "/";}
+	| MULTIPLY {$$.s = "*";}
 
 LOOP: FOR VAR_NAME IN INT DOT DOT VAR_NAME LOOP_ {$$="Bucle for\n";}
 	| FOR VAR_NAME IN VAR_NAME DOT DOT VAR_NAME LOOP_ {$$="Bucle for\n";}
@@ -226,7 +208,7 @@ LOOP: FOR VAR_NAME IN INT DOT DOT VAR_NAME LOOP_ {$$="Bucle for\n";}
 
 ;
 COM:
-	COMMENT {$$ = "Comentario\n";}
+	COMMENT {$$.s = "Comentario";}
 
 ;
 
@@ -244,30 +226,29 @@ PR:
 ;
 
 IF_COND: 
-	IF BOOLEAN_OP THEN {$$ = "Sentencia IF\n";}
-	| END IF SEMICOLON {$$ = "End IF\n";}
-	| ELSE {$$ = "Else\n";}
-	| ELSIF {$$ = "Elsif\n";}
+	IF BOOLEAN_OP THEN {$$.s = "Sentencia IF\n";}
+	| END IF SEMICOLON {$$.s = "End IF\n";}
+	| ELSE {$$.s = "Else\n";}
+	| ELSIF {$$.s = "Elsif\n";}
 ;
 
 
 // Operaciones aritmeticas con int 
-OPERATION: INT {$$ = $1;}
-	| OPERATION PLUS OPERATION {$$ = $1 + $3;} // 1 + 1
-	| OPERATION MINUS OPERATION { $$ = $1 - $3;} // 1 -1
-	| OPERATION MULTIPLY OPERATION { $$ = $1 * $3;} // 1 * 1
-	| OPERATION DIVIDE OPERATION { $$ = $1 / $3;} // 1 / 1
-	//| LEFT OPERATION RIGHT { $$ = "Operacion aritmetica\n";} // operacion entre parentesis
+OPERATION: INT {$$.i = $1.i; $$.a = createNum($1.i);}
+	| OPERATION PLUS OPERATION {$$.i = $1.i + $3.i; $$.a = createAST($2,$1.a,$3.a);} // 1 + 1
+	| OPERATION MINUS OPERATION { $$.i = $1.i - $3.i;} // 1 -1
+	| OPERATION MULTIPLY OPERATION { $$.i = $1.i * $3.i;} // 1 * 1
+	| OPERATION DIVIDE OPERATION { $$.i = $1.i / $3.i;} // 1 / 1
+	//| LEFT OPERATION RIGHT { $$.i = "Operacion aritmetica\n";} // operacion entre parentesis
 
 ;
 // Operaciones aritmeticas con float
-OPERATION2: FLOAT {$$ = $1;}
-	//| VAR_NAME {$1;}
-	| OPERATION2 PLUS OPERATION2 {$$ = $1 + $3;} // 1 + 1
-	| OPERATION2 MINUS OPERATION2 { $$ = $1 - $3;} // 1 -1
-	| OPERATION2 MULTIPLY OPERATION2 { $$ = $1 * $3;} // 1 * 1
-	| OPERATION2 DIVIDE OPERATION2 { $$ = $1 / $3;} // 1 / 1
-	//| LEFT OPERATION2 RIGHT { $$ = "Operacion aritmetica\n";} // operacion entre parentesis
+OPERATION2: FLOAT {$$.f = $1.f;}
+	| OPERATION2 PLUS OPERATION2 {$$.f = $1.f + $3.f;} // 1 + 1
+	| OPERATION2 MINUS OPERATION2 { $$.f = $1.f - $3.f;} // 1 -1
+	| OPERATION2 MULTIPLY OPERATION2 { $$.f = $1.f * $3.f;} // 1 * 1
+	| OPERATION2 DIVIDE OPERATION2 { $$.f = $1.f / $3.f;} // 1 / 1
+	//| LEFT OPERATION2 RIGHT { $$.f = "Operacion aritmetica\n";} // operacion entre parentesis
 
 ;
 
@@ -304,80 +285,20 @@ BOOLEAN_MIX:
 */
 // Operaciones booleanas
 BOOLEAN_OP:
-	VAR_NAME BOOLEAN_OPERATORS VAR_NAME {$$="Operacion booleana variables\n";}
-	| VAR_NAME BOOLEAN_OPERATORS INT {$$="Operacion booleana variable - numero\n";}
-	| VAR_NAME BOOLEAN_OPERATORS STR {$$="Operacion booleana variable - string\n";}
-	| VAR_NAME BOOLEAN_OPERATORS FLOAT {$$="Operacion booleana variable - float\n";}
-	| INT BOOLEAN_OPERATORS INT {$$="Operacion booleana numero - numero\n";}
-	| STR BOOLEAN_OPERATORS STR {$$="Operacion booleana string - string\n";}
-	| FLOAT BOOLEAN_OPERATORS FLOAT {$$="Operacion booleana float - float\n";}
-	| VAR_NAME EQUAL BOOLEAN_VAR {$$="Variable igual a True/False\n";}
+	VAR_NAME BOOLEAN_OPERATORS VAR_NAME {$$.s="Operacion booleana variables\n";}
+	| VAR_NAME BOOLEAN_OPERATORS INT {$$.s="Operacion booleana variable - numero\n";}
+	| VAR_NAME BOOLEAN_OPERATORS STR {$$.s="Operacion booleana variable - string\n";}
+	| VAR_NAME BOOLEAN_OPERATORS FLOAT {$$.s="Operacion booleana variable - float\n";}
+	| INT BOOLEAN_OPERATORS INT {$$.s="Operacion booleana numero - numero\n";}
+	| STR BOOLEAN_OPERATORS STR {$$.s="Operacion booleana string - string\n";}
+	| FLOAT BOOLEAN_OPERATORS FLOAT {$$.s="Operacion booleana float - float\n";}
+	| VAR_NAME EQUAL BOOLEAN_VAR {$$.s="Variable igual a True/False\n";}
 
 ;
 
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 %%
-/*
-void operacion_variables(struct TablaSimbolos *tabla, int *size, char *varname, char *type, char *varname2, char *type2,
-                         char *varname3, char operation, int ival1, int ival2, float fval1, float fval2) {
-    int index_1 = -1;
-    int index_2 = -1;
-    int val3 = 0;
-    int val4 = 0;
-    float val1 = 0;
-    float val2 = 0;
-    if ((strcmp(type, "var") == 0) && (strcmp(type2, "var") == 0)) {
-        index_1 = buscarValor(tabla, varname, type, size);
-        index_2 = buscarValor(tabla, varname2, type2, size);
-    } else if ((strcmp(type, "var") == 0)) {
-        index_1 = buscarValor(tabla, varname, type, size);
-    } else if ((strcmp(type2, "var") == 0)) {
-        index_2 = buscarValor(tabla, varname2, type2, size);
-    }
-
-    if (index_1 == -1 && ival1 != 0) {
-        val3 = ival1;
-    } else if (index_1 == -1 && fval1 != 0) {
-        val1 = fval1;
-    }
-    if (index_2 == -1 && ival2 != 0) {
-        val4 = ival2;
-    } else if (index_2 == -1 && fval2 != 0) {
-        val2 = fval2;
-    }
-    if (index_1 != -1 && index_2 != -1) {
-        if (strcmp(tabla[index_1].tipo, "FLOAT") == 0 && strcmp(tabla[index_2].tipo, "FLOAT") == 0) {
-            if (operation == '+') {
-                float result = tabla[index_1].valor + tabla[index_2].valor;
-                actualizarVariable(tabla, size, 0, result, varname3);
-            } else if (operation == '-') {
-                float result = tabla[index_1].valor - tabla[index_2].valor;
-                actualizarVariable(tabla, size, 0, result, varname3);
-            } else if (operation == '*') {
-                float result = tabla[index_1].valor * tabla[index_2].valor;
-                actualizarVariable(tabla, size, 0, result, varname3);
-            } else if (operation == '/') {
-                float result = tabla[index_1].valor / tabla[index_2].valor;
-                actualizarVariable(tabla, size, 0, result, varname3);
-            }
-        } else if (strcmp(tabla[index_1].tipo, "INT") == 0 && strcmp(tabla[index_2].tipo, "INT") == 0) {
-            if (operation == '+') {
-                int result = tabla[index_1].valor + tabla[index_2].valor;
-                actualizarVariable(tabla, size, result, 0, varname3);
-            } else if (operation == '-') {
-                int result = tabla[index_1].valor - tabla[index_2].valor;
-                actualizarVariable(tabla, size, result, 0, varname3);
-            } else if (operation == '*') {
-                int result = tabla[index_1].valor * tabla[index_2].valor;
-                actualizarVariable(tabla, size, result, 0, varname3);
-            } else if (operation == '/') {
-                int result = tabla[index_1].valor / tabla[index_2].valor;
-                actualizarVariable(tabla, size, result, 0, varname3);
-            }
-        }
-    }
-
-}*/
 
 void inicializarArray(struct symb *tabla, int inicio, int fin) {
     for (int i = inicio; i < fin; i++) {
@@ -453,6 +374,34 @@ void insertarElemento(struct symb *tabla, int *size, int valor, char* svalor, fl
     }
      
 }
+
+struct ast *createAST(char* nodetype, struct ast *l, struct ast *r)
+{
+ struct ast *a = malloc(sizeof(struct ast));
+
+ if(!a) {
+ yyerror("out of space");
+ exit(0);
+ }
+ a->nodetype = nodetype;
+ a->l = l;
+ a->r = r;
+ return a;
+}
+
+struct ast *createNum(double d)
+{
+ 	struct numval *a = malloc(sizeof(struct numval));
+  	if(!a) {
+ 		yyerror("out of space");
+ 		exit(0);
+ 	}
+ 	a->nodetype = 'K';
+ 	a->number = d;
+ 	return (struct ast *)a;
+}
+
+
 
 int main(int argc, char *argv[]) {
 

@@ -1,41 +1,45 @@
-Linea 1 Procedure
-Linea 4 Declaracion de char
-Linea 5 Declaracion de integer
-Linea 6 Declaracion de integer
-Linea 8 Begin
-Linea 10 Begin
-Linea 11 Asignacion de int
-Linea 12 End begin
-Linea 13 Begin
-Linea 14 Asignacion de float
-Linea 15 Asignacion de variable mas int
-Linea 16 End begin
-Linea 18 Sentencia IF
-Linea 19 Begin
-Linea 20 Asignacion de string
-Linea 21 End begin
-Linea 22 Else
-Linea 23 Begin
-Linea 24 Asignacion de char
-Linea 25 End begin
-Linea 27 End IF
-Linea 28 Begin
-Linea 29 Asignacion de int
-Linea 30 Bucle for
-Linea 31 Asignacion de float
-Linea 32 Fin de for
-Linea 33 End begin
-Linea 34 Comentario
-Linea 35 End procedure
+Linea 2 Procedure
+variable_char: .byte 
+ Linea 4 Declaracion de char
+variable_int1: .word 
+ Linea 5 Declaracion de integer
+variable_int2: .word 1 
+Linea 6 Declaracion y asignacion de int
+variable_float1: .float 0.000000 
+Linea 7 Declaracion y asignacion de float
+Linea 9 Begin
+Linea 11 Begin
+Linea 12 Asignacion de int
+Linea 13 End begin
+Linea 14 Begin
+Linea 15 Asignacion de float
+Linea 16 Asignacion de de operacion entre variable e int
+Linea 17 End begin
+Linea 19 Sentencia IF
+Linea 20 Begin
+Linea 21 Asignacion de string
+Linea 22 End begin
+Linea 23 Else
+Linea 24 Begin
+Linea 25 Asignacion de char
+Linea 26 End begin
+Linea 28 End IF
+Linea 29 Begin
+Linea 30 Asignacion de int
+Linea 31 Bucle for
+Linea 32 Asignacion de float
+Linea 33 Fin de for
+Linea 34 End begin
+Linea 35 ComentarioLinea 36 End procedure
+Nombre variable_int2 INT 1 FLOAT 0.000000 STRING (null) TIPO integer 
+
+Nombre variable_float1 INT 0 FLOAT 0.000000 STRING (null) TIPO float 
+
 Nombre variable_int1 INT 2 FLOAT 0.000000 STRING (null) TIPO integer 
 
-Nombre variable_int2 INT 0 FLOAT 1.500000 STRING (null) TIPO float 
+Nombre variable_int2 INT 0 FLOAT 0.000000 STRING (null) TIPO float 
 
 Nombre variable_char INT 0 FLOAT 0.000000 STRING 'b' TIPO string 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
 
 Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
 

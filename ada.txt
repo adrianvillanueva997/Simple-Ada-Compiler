@@ -1,9 +1,10 @@
+
 procedure Main is
 
-   
    variable_char : Character;
    variable_int1 : Integer;
-   variable_int2 : Integer;
+   variable_int2 : Integer := 1;
+   variable_float1: float := 1.2;
    
 begin
    
