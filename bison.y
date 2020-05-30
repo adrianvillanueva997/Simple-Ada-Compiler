@@ -27,11 +27,11 @@ struct ast {
 
 struct asign {
  char* nodetype;
- struct ast *a;
+ struct ast *as;
 };
 
 struct numval {
-	int nodetype;
+	char* nodetype;
 	double number;
 };
 
@@ -54,6 +54,8 @@ void inicializarArray(struct symb *tabla, int inicio, int fin);
 int buscarValor(struct symb *tabla, char *nombre, char *tipo, int *size);
 struct ast *createAST(char* nodetype, struct ast *l, struct ast *r);
 struct ast *createNum(double d);
+struct ast *createASG(char* nodetype, struct ast *op);
+void printAST(struct ast *a);
 
 void yyerror(const char* s);
 
@@ -71,6 +73,7 @@ void yyerror(const char* s);
 	float f;
 	char* s;
 	struct ast *a;
+	struct asign *as;
 	}st;
 }
 
@@ -86,12 +89,13 @@ void yyerror(const char* s);
 %token<sval> MINUS
 %token<sval> MULTIPLY
 %token<sval> DIVIDE
+%token<sval> EQUAL
 
 
 // TOKENS GENERALES
 %token LEFT RIGHT OPEN CLOSE // parentesis/llaves
 %token WHILE BOOL FOR CASE  AND OR PROC IS END BEG INTEGERDEC FLOATDEC CHARDEC STRINGDEC IF THEN DOT LOOP_ IN ELSE ELSIF   // palabras reservadas
-%token LESS MORE EQUAL GREATER_THAN LESSER_THAN NOT_EQUAL  // operadores logicos
+%token LESS MORE GREATER_THAN LESSER_THAN NOT_EQUAL  // operadores logicos
 %token COMMENT COLON SEMICOLON QUOTE //simbolos reservados
 %token NEWLINE //cosas de flex
 %token TRUE FALSE // operadores booleanos
@@ -108,6 +112,7 @@ void yyerror(const char* s);
 %type<st> OPERATION2
 %type<sval> SOP
 %type<st> DECL
+%type<st> DECL2
 %type<st> OPER
 
 // Booleanos
@@ -135,26 +140,30 @@ line:
 	IF_COND {  printf("Linea %d ",line_num); printf("%s", $1.s);}
 	| PR { printf("Linea %d ",line_num); printf("%s", $1);}
 	| LOOP { printf("Linea %d ",line_num); printf("%s", $1);}
+	| DECL2 { printf("Linea %d ",line_num); printf("%s",$1.s); printAST($1.a);}
 	| DECL { printf("Linea %d ",line_num); printf("%s",$1.s);}
 	| COM  { printf("Linea %d ",line_num); printf("%s",$1.s);}
 	| error {yyerror; printf("Linea %d ",line_num); printf("Error en esta linea\n");}
 	| BEGIN  { printf("Linea %d ",line_num); printf("%s",$1);}
 ;
+
+DECL2: VAR_NAME COLON EQUAL OPERATION SEMICOLON { $$.s = "Asignacion de int\n";
+	insertarElemento(tabla, &size, $4.i, "", 0.0, $1, &elementosOcupados, "integer" ); $$.a = createASG($3,$4.a); }
 	
-DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$.s = "Declaracion de integer\n"; printf("%s: .word \n ",$1);}
-	| VAR_NAME COLON STRINGDEC SEMICOLON { $$.s = "Declaracion de string\n"; printf("%s: .ascii \n ",$1);}
-	| VAR_NAME COLON FLOATDEC SEMICOLON { $$.s = "Declaracion de float\n"; printf("%s: .float \n ",$1);}
-	| VAR_NAME COLON CHARDEC SEMICOLON { $$.s = "Declaracion de char\n"; printf("%s: .byte \n ",$1);}
-	| VAR_NAME COLON BOOL SEMICOLON {$$.s="Declaracion de boolean\n"; printf("%s: .word \n ",$1);}
+DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$.s = "Declaracion de integer\n";/* printf("%s: .word \n ",$1);*/}
+	| VAR_NAME COLON STRINGDEC SEMICOLON { $$.s = "Declaracion de string\n";/* printf("%s: .ascii \n ",$1);*/}
+	| VAR_NAME COLON FLOATDEC SEMICOLON { $$.s = "Declaracion de float\n";/* printf("%s: .float \n ",$1);*/}
+	| VAR_NAME COLON CHARDEC SEMICOLON { $$.s = "Declaracion de char\n";/* printf("%s: .byte \n ",$1);*/}
+	| VAR_NAME COLON BOOL SEMICOLON {$$.s="Declaracion de boolean\n";/* printf("%s: .word \n ",$1);*/}
 
 	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION SEMICOLON {$$.s = "Declaracion y asignacion de int\n" ;
-	insertarElemento(tabla, &size, $6.i, "", 0.0, $1, &elementosOcupados, "integer" ); printf("%s: .word %i \n",$1,$6.i);}
+	insertarElemento(tabla, &size, $6.i, "", 0.0, $1, &elementosOcupados, "integer" ); /*printf("%s: .word %i \n",$1,$6.i);*/}
 
 	| VAR_NAME COLON FLOATDEC COLON EQUAL OPERATION2 SEMICOLON {$$.s = "Declaracion y asignacion de float\n" ;
-	insertarElemento(tabla, &size, 0, "", $6.f, $1, &elementosOcupados, "float" ); printf("%s: .float %f \n",$1,$6);}
+	insertarElemento(tabla, &size, 0, "", $6.f, $1, &elementosOcupados, "float" ); /*printf("%s: .float %f \n",$1,$6);*/}
 
-	| VAR_NAME COLON EQUAL OPERATION SEMICOLON { $$.s = "Asignacion de int\n";
-	insertarElemento(tabla, &size, $4.i, "", 0.0, $1, &elementosOcupados, "integer" );}
+	/*| VAR_NAME COLON EQUAL OPERATION SEMICOLON { $$.s = "Asignacion de int\n";
+	insertarElemento(tabla, &size, $4.i, "", 0.0, $1, &elementosOcupados, "integer" ); $$.a = createASG($3,$4.a); }*/
 	
 	| VAR_NAME COLON EQUAL OPERATION2 SEMICOLON { $$.s = "Asignacion de float\n";
 	insertarElemento(tabla, &size, 0, "", $4.f, $1, &elementosOcupados, "float" );}	
@@ -208,7 +217,7 @@ LOOP: FOR VAR_NAME IN INT DOT DOT VAR_NAME LOOP_ {$$="Bucle for\n";}
 
 ;
 COM:
-	COMMENT {$$.s = "Comentario";}
+	COMMENT {$$.s = "Comentario\n";}
 
 ;
 
@@ -375,6 +384,19 @@ void insertarElemento(struct symb *tabla, int *size, int valor, char* svalor, fl
      
 }
 
+struct ast *createASG(char* nodetype, struct ast *op){
+
+	struct asign *a = malloc(sizeof(struct asign));
+	if(!a) {
+		yyerror("out of space");
+		exit(0);
+	}
+	a->nodetype = "=";
+	a->as = op;
+	//printf("%s",a->nodetype);
+	return (struct ast *)a;
+}
+
 struct ast *createAST(char* nodetype, struct ast *l, struct ast *r)
 {
  struct ast *a = malloc(sizeof(struct ast));
@@ -396,10 +418,18 @@ struct ast *createNum(double d)
  		yyerror("out of space");
  		exit(0);
  	}
- 	a->nodetype = 'K';
+ 	a->nodetype = "K";
  	a->number = d;
  	return (struct ast *)a;
 }
+
+void printAST(struct ast *a){
+
+	printf("%s",a->nodetype);
+
+	//printf("llego bien");
+}
+
 
 
 

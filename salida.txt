@@ -1,16 +1,12 @@
 Linea 2 Procedure
-variable_char: .byte 
- Linea 4 Declaracion de char
-variable_int1: .word 
- Linea 5 Declaracion de integer
-variable_int2: .word 1 
+Linea 4 Declaracion de char
+Linea 5 Declaracion de integer
 Linea 6 Declaracion y asignacion de int
-variable_float1: .float 0.000000 
 Linea 7 Declaracion y asignacion de float
 Linea 9 Begin
 Linea 11 Begin
 Linea 12 Asignacion de int
-Linea 13 End begin
+=Linea 13 End begin
 Linea 14 Begin
 Linea 15 Asignacion de float
 Linea 16 Asignacion de de operacion entre variable e int
@@ -26,11 +22,12 @@ Linea 26 End begin
 Linea 28 End IF
 Linea 29 Begin
 Linea 30 Asignacion de int
-Linea 31 Bucle for
+=Linea 31 Bucle for
 Linea 32 Asignacion de float
 Linea 33 Fin de for
 Linea 34 End begin
-Linea 35 ComentarioLinea 36 End procedure
+Linea 35 Comentario
+Linea 36 End procedure
 Nombre variable_int2 INT 1 FLOAT 0.000000 STRING (null) TIPO integer 
 
 Nombre variable_float1 INT 0 FLOAT 0.000000 STRING (null) TIPO float 
