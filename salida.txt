@@ -3,42 +3,45 @@ Linea 4 Declaracion de char
 Linea 5 Declaracion de integer
 Linea 6 Declaracion y asignacion de int
 Linea 7 Declaracion y asignacion de float
-Linea 9 Begin
-Linea 11 Begin
-Linea 12 Asignacion de int
-=Linea 13 End begin
-Linea 14 Begin
-Linea 15 Asignacion de float
-Linea 16 Asignacion de de operacion entre variable e int
-Linea 17 End begin
-Linea 19 Sentencia IF
-Linea 20 Begin
-Linea 21 Asignacion de string
-Linea 22 End begin
-Linea 23 Else
-Linea 24 Begin
-Linea 25 Asignacion de char
-Linea 26 End begin
-Linea 28 End IF
-Linea 29 Begin
-Linea 30 Asignacion de int
-=Linea 31 Bucle for
-Linea 32 Asignacion de float
-Linea 33 Fin de for
-Linea 34 End begin
-Linea 35 Comentario
-Linea 36 End procedure
+Linea 8 Declaracion de string
+Linea 9 Sentencia IF
+Linea 10 Begin
+Linea 12 Begin
+Linea 13 Asignacion de int
+=Linea 14 Asignacion de string
+=Linea 15 End begin
+Linea 16 Begin
+Linea 17 Asignacion de float
+=Linea 18 Asignacion de de operacion entre variable e int
+Linea 19 End begin
+Linea 21 Sentencia IF
+Linea 22 Begin
+Linea 23 Asignacion de string
+=Linea 24 End begin
+Linea 25 Else
+Linea 26 Begin
+Linea 27 Asignacion de char
+Linea 28 End begin
+Linea 30 End IF
+Linea 31 Begin
+Linea 32 Asignacion de int
+=Linea 33 Bucle for
+Linea 34 Asignacion de float
+=Linea 35 Fin de for
+Linea 36 End begin
+Linea 37 Comentario
+Linea 38 End procedure
 Nombre variable_int2 INT 1 FLOAT 0.000000 STRING (null) TIPO integer 
 
 Nombre variable_float1 INT 0 FLOAT 0.000000 STRING (null) TIPO float 
 
 Nombre variable_int1 INT 2 FLOAT 0.000000 STRING (null) TIPO integer 
 
+Nombre variable_str INT 0 FLOAT 0.000000 STRING (null) TIPO string 
+
 Nombre variable_int2 INT 0 FLOAT 0.000000 STRING (null) TIPO float 
 
 Nombre variable_char INT 0 FLOAT 0.000000 STRING 'b' TIPO string 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
 
 Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
 

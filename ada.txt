@@ -5,11 +5,13 @@ procedure Main is
    variable_int1 : Integer;
    variable_int2 : Integer := 1;
    variable_float1: float := 1.2;
-   
+   variable_str: string;
+   if variableop = "hola" then
 begin
    
    begin
       variable_int1 := 10;
+      variable_str:="hola";
    end;
    begin
       variable_int2 := 1.2;

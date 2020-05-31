@@ -25,6 +25,13 @@ struct ast {
  struct ast *r;
 };
 
+struct flow {
+	int nodetype; /* type I or W */
+	struct ast *cond; /* condition */
+	struct ast *tl; /* then branch or do list */
+	struct ast *el; /* optional else branch */
+};
+
 struct asign {
  char* nodetype;
  struct ast *as;
@@ -33,6 +40,11 @@ struct asign {
 struct numval {
 	char* nodetype;
 	double number;
+};
+
+struct strval {
+	char* nodetype;
+	char* str;
 };
 
 //Declaraciones de la tabla de simbolos
@@ -54,7 +66,8 @@ void inicializarArray(struct symb *tabla, int inicio, int fin);
 int buscarValor(struct symb *tabla, char *nombre, char *tipo, int *size);
 struct ast *createAST(char* nodetype, struct ast *l, struct ast *r);
 struct ast *createNum(double d);
-struct ast *createASG(char* nodetype, struct ast *op);
+struct ast *createSTR(char* s);
+struct ast *createASG(struct ast *op);
 void printAST(struct ast *a);
 
 void yyerror(const char* s);
@@ -83,7 +96,7 @@ void yyerror(const char* s);
 %token<st> INT
 %token<st> FLOAT
 %token<sval> VAR
-%token<sval> STR
+%token<st> STR
 %token<sval> CHAR
 %token<sval> PLUS
 %token<sval> MINUS
@@ -110,9 +123,9 @@ void yyerror(const char* s);
 //OPERACIONES
 %type<st> OPERATION
 %type<st> OPERATION2
-%type<sval> SOP
+%type<st> SOP
 %type<st> DECL
-%type<st> DECL2
+//%type<st> DECL2
 %type<st> OPER
 
 // Booleanos
@@ -140,15 +153,13 @@ line:
 	IF_COND {  printf("Linea %d ",line_num); printf("%s", $1.s);}
 	| PR { printf("Linea %d ",line_num); printf("%s", $1);}
 	| LOOP { printf("Linea %d ",line_num); printf("%s", $1);}
-	| DECL2 { printf("Linea %d ",line_num); printf("%s",$1.s); printAST($1.a);}
-	| DECL { printf("Linea %d ",line_num); printf("%s",$1.s);}
+	| DECL { printf("Linea %d ",line_num); printf("%s",$1.s); if(!$1.a){ ;} else {printAST($1.a);}}
 	| COM  { printf("Linea %d ",line_num); printf("%s",$1.s);}
 	| error {yyerror; printf("Linea %d ",line_num); printf("Error en esta linea\n");}
 	| BEGIN  { printf("Linea %d ",line_num); printf("%s",$1);}
 ;
 
-DECL2: VAR_NAME COLON EQUAL OPERATION SEMICOLON { $$.s = "Asignacion de int\n";
-	insertarElemento(tabla, &size, $4.i, "", 0.0, $1, &elementosOcupados, "integer" ); $$.a = createASG($3,$4.a); }
+/*DECL2: */
 	
 DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$.s = "Declaracion de integer\n";/* printf("%s: .word \n ",$1);*/}
 	| VAR_NAME COLON STRINGDEC SEMICOLON { $$.s = "Declaracion de string\n";/* printf("%s: .ascii \n ",$1);*/}
@@ -162,17 +173,17 @@ DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$.s = "Declaracion de integer\n";/*
 	| VAR_NAME COLON FLOATDEC COLON EQUAL OPERATION2 SEMICOLON {$$.s = "Declaracion y asignacion de float\n" ;
 	insertarElemento(tabla, &size, 0, "", $6.f, $1, &elementosOcupados, "float" ); /*printf("%s: .float %f \n",$1,$6);*/}
 
-	/*| VAR_NAME COLON EQUAL OPERATION SEMICOLON { $$.s = "Asignacion de int\n";
-	insertarElemento(tabla, &size, $4.i, "", 0.0, $1, &elementosOcupados, "integer" ); $$.a = createASG($3,$4.a); }*/
+	| VAR_NAME COLON EQUAL OPERATION SEMICOLON { $$.s = "Asignacion de int\n";
+	insertarElemento(tabla, &size, $4.i, "", 0.0, $1, &elementosOcupados, "integer" ); $$.a = createASG($4.a); }
 	
 	| VAR_NAME COLON EQUAL OPERATION2 SEMICOLON { $$.s = "Asignacion de float\n";
-	insertarElemento(tabla, &size, 0, "", $4.f, $1, &elementosOcupados, "float" );}	
+	insertarElemento(tabla, &size, 0, "", $4.f, $1, &elementosOcupados, "float" ); $$.a = createASG($4.a);}	
 	
 	| VAR_NAME COLON STRINGDEC COLON EQUAL SOP SEMICOLON { $$.s = "Asignacion y declaracion de string\n";
-	insertarElemento(tabla, &size, 0, $6, 0.0, $1, &elementosOcupados, "string" );}
+	insertarElemento(tabla, &size, 0, $6.s, 0.0, $1, &elementosOcupados, "string" );}
 	
-	| VAR_NAME COLON EQUAL STR SEMICOLON { $$.s = "Asignacion de string\n";
-	insertarElemento(tabla, &size, 0, $4, 0.0, $1, &elementosOcupados, "string" );}
+	| VAR_NAME COLON EQUAL SOP SEMICOLON { $$.s = "Asignacion de string\n";
+	insertarElemento(tabla, &size, 0, $4.s, 0.0, $1, &elementosOcupados, "string" ); $$.a = createASG($4.a);}
 	
 	| VAR_NAME COLON FLOATDEC COLON EQUAL OPERATION SEMICOLON { $$.s = "Asignacion y declaracion de float\n";}
 	
@@ -245,23 +256,23 @@ IF_COND:
 // Operaciones aritmeticas con int 
 OPERATION: INT {$$.i = $1.i; $$.a = createNum($1.i);}
 	| OPERATION PLUS OPERATION {$$.i = $1.i + $3.i; $$.a = createAST($2,$1.a,$3.a);} // 1 + 1
-	| OPERATION MINUS OPERATION { $$.i = $1.i - $3.i;} // 1 -1
-	| OPERATION MULTIPLY OPERATION { $$.i = $1.i * $3.i;} // 1 * 1
-	| OPERATION DIVIDE OPERATION { $$.i = $1.i / $3.i;} // 1 / 1
+	| OPERATION MINUS OPERATION { $$.i = $1.i - $3.i; $$.a = createAST($2,$1.a,$3.a);} // 1 -1
+	| OPERATION MULTIPLY OPERATION { $$.i = $1.i * $3.i; $$.a = createAST($2,$1.a,$3.a);} // 1 * 1
+	| OPERATION DIVIDE OPERATION { $$.i = $1.i / $3.i; $$.a = createAST($2,$1.a,$3.a);} // 1 / 1
 	//| LEFT OPERATION RIGHT { $$.i = "Operacion aritmetica\n";} // operacion entre parentesis
 
 ;
 // Operaciones aritmeticas con float
-OPERATION2: FLOAT {$$.f = $1.f;}
-	| OPERATION2 PLUS OPERATION2 {$$.f = $1.f + $3.f;} // 1 + 1
-	| OPERATION2 MINUS OPERATION2 { $$.f = $1.f - $3.f;} // 1 -1
-	| OPERATION2 MULTIPLY OPERATION2 { $$.f = $1.f * $3.f;} // 1 * 1
-	| OPERATION2 DIVIDE OPERATION2 { $$.f = $1.f / $3.f;} // 1 / 1
+OPERATION2: FLOAT {$$.f = $1.f; $$.a = createNum($1.i);}
+	| OPERATION2 PLUS OPERATION2 {$$.f = $1.f + $3.f; $$.a = createAST($2,$1.a,$3.a);} // 1 + 1
+	| OPERATION2 MINUS OPERATION2 { $$.f = $1.f - $3.f; $$.a = createAST($2,$1.a,$3.a);} // 1 -1
+	| OPERATION2 MULTIPLY OPERATION2 { $$.f = $1.f * $3.f; $$.a = createAST($2,$1.a,$3.a);} // 1 * 1
+	| OPERATION2 DIVIDE OPERATION2 { $$.f = $1.f / $3.f; $$.a = createAST($2,$1.a,$3.a);} // 1 / 1
 	//| LEFT OPERATION2 RIGHT { $$.f = "Operacion aritmetica\n";} // operacion entre parentesis
 
 ;
 
-SOP: STR {$$ = $1;}
+SOP: STR {$$.s = $1.s; $$.a = createSTR($1.s);}
 
 ;
 
@@ -296,10 +307,10 @@ BOOLEAN_MIX:
 BOOLEAN_OP:
 	VAR_NAME BOOLEAN_OPERATORS VAR_NAME {$$.s="Operacion booleana variables\n";}
 	| VAR_NAME BOOLEAN_OPERATORS INT {$$.s="Operacion booleana variable - numero\n";}
-	| VAR_NAME BOOLEAN_OPERATORS STR {$$.s="Operacion booleana variable - string\n";}
+	| VAR_NAME BOOLEAN_OPERATORS SOP {$$.s="Operacion booleana variable - string\n";}
 	| VAR_NAME BOOLEAN_OPERATORS FLOAT {$$.s="Operacion booleana variable - float\n";}
 	| INT BOOLEAN_OPERATORS INT {$$.s="Operacion booleana numero - numero\n";}
-	| STR BOOLEAN_OPERATORS STR {$$.s="Operacion booleana string - string\n";}
+	| SOP BOOLEAN_OPERATORS SOP {$$.s="Operacion booleana string - string\n";}
 	| FLOAT BOOLEAN_OPERATORS FLOAT {$$.s="Operacion booleana float - float\n";}
 	| VAR_NAME EQUAL BOOLEAN_VAR {$$.s="Variable igual a True/False\n";}
 
@@ -384,7 +395,22 @@ void insertarElemento(struct symb *tabla, int *size, int valor, char* svalor, fl
      
 }
 
-struct ast *createASG(char* nodetype, struct ast *op){
+/*struct ast *
+newflow(int nodetype, struct ast *cond, struct ast *tl, struct ast *el)
+{
+struct flow *a = malloc(sizeof(struct flow));
+if(!a) {
+yyerror("out of space");
+exit(0);
+}
+a->nodetype = nodetype;
+a->cond = cond;
+a->tl = tl;
+a->el = el;
+return (struct ast *)a;
+}*/
+
+struct ast *createASG(struct ast *op){
 
 	struct asign *a = malloc(sizeof(struct asign));
 	if(!a) {
@@ -420,6 +446,18 @@ struct ast *createNum(double d)
  	}
  	a->nodetype = "K";
  	a->number = d;
+ 	return (struct ast *)a;
+}
+
+struct ast *createSTR(char* s)
+{
+ 	struct strval *a = malloc(sizeof(struct strval));
+  	if(!a) {
+ 		yyerror("out of space");
+ 		exit(0);
+ 	}
+ 	a->nodetype = "S";
+ 	a->str = s;
  	return (struct ast *)a;
 }
 
