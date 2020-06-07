@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <values.h>
+#include "functions.c"
 
 extern int yylex();
 extern int yyparse();
@@ -12,6 +13,8 @@ extern FILE *yyin;
 extern FILE *yyout;
 
 //Declaraciones del AST
+
+char* ast_text = "ast.txt";
 
 struct ast {
  char* nodetype;
@@ -55,6 +58,12 @@ struct symb{
 	char* type; 
 };
 
+//Declaraciones MIPS
+
+struct MipsVariables mipsVariables[100];
+struct MipsValores mipsValores[100];
+char *filename_data = "data.txt";
+char *filename_text = "text.txt";
 
 //Variables globales
 int line_num = 1;
@@ -71,10 +80,18 @@ struct symb tabla[52];
 
 
 //Inicialización de funciones
+
+//Funciones de MIPS
+                  
+
+//Funciones tabla de simbolos
 void insertarElemento(struct symb *tabla, int *size, int valor, char* svalor, float fvalor, char *variable, int *elementosOcupados, char* type );
+void realizarOperacion(struct symb *tabla, int *size, int valor, int valor2, int valor3, float fvalor, float fvalor2, float fvalor3, char *variable, char *variable2, char *variable3,int *elementosOcupados, char* type , char* type2, char* type3, char* oper);
 void inicializarArray(struct symb *tabla, int inicio, int fin);
-void inicializarArray2(struct ast *nodos, int inicio, int fin);
 int buscarValor(struct symb *tabla, char *nombre, char *tipo, int *size);
+
+
+//Funciones AST
 struct ast *createAST(char* nodetype, struct ast *l, struct ast *r);
 struct ast *createBOO(char* nodetype, struct ast *l, struct ast *r);
 struct ast *createFlow(struct ast *cond);
@@ -85,7 +102,10 @@ struct ast *createBOOVAR(char* s);
 struct ast *createASG(struct ast *op);
 void evalAST(struct ast a, int *size);
 void printAST(struct ast nodos[], int i, int encontrado, int salida);
+
+//Funciones auxiliares
 void yyerror(const char* s);
+void inicializarArray2(struct ast *nodos, int inicio, int fin);
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -100,6 +120,9 @@ void yyerror(const char* s);
 	int i;
 	float f;
 	char* s;
+	char *temp1;
+	char *temp2;
+	char *temp3;
 	struct ast *a;
 	struct asign *as;
 	}st;
@@ -199,7 +222,8 @@ DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$.s = "Declaracion de integer\n";}
 	| VAR_NAME COLON ARR LEFT OPERATION DOT DOT OPERATION RIGHT OF DECTYPE SEMICOLON {$$.s="Declaracion de array\n";}
 
 	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION SEMICOLON {$$.s = "Declaracion y asignacion de int\n" ;
-	insertarElemento(tabla, &size, $6.i, "", 0.0, $1.s, &elementosOcupados, "integer" ); $$.a = createASG($6.a);}
+	insertarElemento(tabla, &size, $6.i, "", 0.0, $1.s, &elementosOcupados, "integer" ); $$.a = createASG($6.a);
+	mipsVar_insert_mips_variable_declaration(mipsVariables, "integer", $1.s,$6.i, NULL, -500,-500);}
 
 	| VAR_NAME COLON FLOATDEC COLON EQUAL OPERATION2 SEMICOLON {$$.s = "Declaracion y asignacion de float\n" ;
 	insertarElemento(tabla, &size, 0, "", $6.f, $1.s, &elementosOcupados, "float" ); $$.a = createASG($6.a);}
@@ -223,19 +247,13 @@ DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$.s = "Declaracion de integer\n";}
 	insertarElemento(tabla, &size, 0, $4, 0.0, $1.s, &elementosOcupados, "string" );}
 
 	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME OPER OPERATION SEMICOLON {$$.s = "Declaracion y asignacion de operacion entre variable e int\n" ;
-	}
+	/*realizarOperacion(tabla, &size, $6.i, $8.i, $1.i, 0.0, 0.0, 0.0, $6.s, "", $1.s, &elementosOcupados, tabla[buscarValor(tabla,$6.s)] , char* type2, char* type3, char* oper)*/}
 
 	| VAR_NAME COLON EQUAL VAR_NAME OPER OPERATION SEMICOLON { $$.s = "Asignacion de de operacion entre variable e int\n" ;}
 
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION OPER VAR_NAME SEMICOLON {$$.s = "Declaracion y asignacion de operacion entre int y variable\n" ;}
-
-	| VAR_NAME COLON EQUAL OPERATION OPER VAR_NAME SEMICOLON { $$.s = "Asignacion de operacion entre int y variable\n" ;}
-
 	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME OPER OPERATION2 SEMICOLON {$$.s = "Declaracion y asignacion de operacion entre variable y float\n" ;}
 
-	| VAR_NAME COLON EQUAL VAR_NAME OPER OPERATION2 SEMICOLON { $$.s = "Asignacion de operacion entre float y variable\n" ;}
-
-	| VAR_NAME COLON EQUAL OPERATION2 OPER VAR_NAME SEMICOLON { $$.s = "Asignacion de operacion entre variable y float\n" ;}
+	| VAR_NAME COLON EQUAL VAR_NAME OPER OPERATION2 SEMICOLON { $$.s = "Asignacion de operacion entre variable y float\n" ;}
 
 	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME OPER VAR_NAME SEMICOLON {$$.s = "Declaracion y asignacion de operacion entre variable y variable\n" ;}
 
@@ -296,7 +314,7 @@ PR:
 ;
 
 IF_COND: 
-	IF BOOLEAN_OP THEN {$$.s = "Sentencia IF\n"; if(!$2.a){ ;} else {$$.a = createFlow($2.a);} }
+	IF BOOLEAN_OP THEN {$$.s = "Sentencia IF\n"; mipsIns_if_var_var(mipsVariables,filename_text,$2.temp1,$2.temp2,$2.temp3); if(!$2.a){ ;} else {$$.a = createFlow($2.a);}}
 	| END IF SEMICOLON {$$.s = "End IF\n";}
 	| ELSE {$$.s = "Else\n";}
 	| ELSIF {$$.s = "Elsif\n";}
@@ -356,13 +374,13 @@ BOOLEAN_MIX:
 
 // Operaciones booleanas
 BOOLEAN_OP:
-	VAR_NAME BOOLEAN_OPERATORS VAR_NAME {$$.s="Operacion booleana variables\n"; $$.a = createBOO($2,$1.a,$3.a);}
-	| VAR_NAME BOOLEAN_OPERATORS OPERATION {$$.s="Operacion booleana variable - numero\n"; $$.a = createBOO($2,$1.a,$3.a);}
-	| VAR_NAME BOOLEAN_OPERATORS SOP {$$.s="Operacion booleana variable - string\n"; $$.a = createBOO($2,$1.a,$3.a);}
-	| VAR_NAME BOOLEAN_OPERATORS OPERATION2 {$$.s="Operacion booleana variable - float\n"; $$.a = createBOO($2,$1.a,$3.a);}
-	| OPERATION BOOLEAN_OPERATORS OPERATION {$$.s="Operacion booleana numero - numero\n"; $$.a = createBOO($2,$1.a,$3.a);}
-	| SOP BOOLEAN_OPERATORS SOP {$$.s="Operacion booleana string - string\n"; $$.a = createBOO($2,$1.a,$3.a);}
-	| OPERATION2 BOOLEAN_OPERATORS OPERATION2 {$$.s="Operacion booleana float - float\n"; $$.a = createBOO($2,$1.a,$3.a);}
+	VAR_NAME BOOLEAN_OPERATORS VAR_NAME {$$.s="Operacion booleana variables\n"; $$.a = createBOO($2,$1.a,$3.a); $$.temp1 = $2; $$.temp2 = $1.s; $$.temp3 = $3.s;}
+	| VAR_NAME BOOLEAN_OPERATORS OPERATION {$$.s="Operacion booleana variable - numero\n"; $$.a = createBOO($2,$1.a,$3.a); $$.temp1 = $2; $$.temp2 = $1.s; }
+	| VAR_NAME BOOLEAN_OPERATORS SOP {$$.s="Operacion booleana variable - string\n"; $$.a = createBOO($2,$1.a,$3.a); $$.temp1 = $2; $$.temp2 = $1.s;}
+	| VAR_NAME BOOLEAN_OPERATORS OPERATION2 {$$.s="Operacion booleana variable - float\n"; $$.a = createBOO($2,$1.a,$3.a);$$.temp1 = $2;$$.temp2 = $1.s;}
+	| OPERATION BOOLEAN_OPERATORS OPERATION {$$.s="Operacion booleana numero - numero\n"; $$.a = createBOO($2,$1.a,$3.a);$$.temp1 = $2;}
+	| SOP BOOLEAN_OPERATORS SOP {$$.s="Operacion booleana string - string\n"; $$.a = createBOO($2,$1.a,$3.a);$$.temp1 = $2;}
+	| OPERATION2 BOOLEAN_OPERATORS OPERATION2 {$$.s="Operacion booleana float - float\n"; $$.a = createBOO($2,$1.a,$3.a);$$.temp1 = $2;}
 	| VAR_NAME EQUAL BOOLEAN_VAR {$$.s="Variable igual a True/False\n"; $$.a = createBOO($2,$1.a,$3.a);}
 
 ;
@@ -383,18 +401,120 @@ void inicializarArray2(struct ast *nodos, int inicio, int fin) {
     }
 }
 
+//FUNCIONES DE LA TABLA DE SIMBOLOS
+
 int buscarValor(struct symb *tabla, char *nombre, char *tipo, int *size) {
     int i = 0;
     int status = -1;
     while (i < *size && status == -1) {
         if (strcmp(tabla[i].vname, nombre) == 0 && (strcmp(tabla[i].type, tipo) == 0 )) {
             status = i;
-        } else {
+        }else if(strcmp(tabla[i].vname, nombre) == 0){ 
+        	status = i;
+        }else {
             i++;
         }
     }
     return status;
 }
+
+/*void realizarOperacion(struct symb *tabla, int *size, int valor, int valor2, int valor3, float fvalor, float fvalor2, float fvalor3, char *variable, char *variable2, char *variable3,int *elementosOcupados, char* type , char* type2, char* type3, char* oper){
+
+
+	int status1 = buscarValor(tabla, variable, type, size);
+	int status2 = buscarValor(tabla, variable2, type2, size);
+	int status3 = buscarValor(tabla, variable3, type3, size);
+
+    if((status1 != -1) && (status2 != -1)){
+    	if((strcmp(type, type2) == 0) && (strcmp(type, type3) == 0) && (strcmp(type,"integer") == 0)){
+	    	valor1 = tabla[status1].vvali;
+	    	valor2 = tabla[status2].vvali;    	
+    		if(strcmp(oper, "+") == 0){
+    			valor3 = valor1 + valor2;
+    		}else if(strcmp(oper, "-") == 0){
+    			valor3 = valor1 - valor2;
+    		}else if(strcmp(oper, "*") == 0){
+    			valor3 = valor1 * valor2;
+    		}else if(strcmp(oper, "/") == 0){
+    			valor3 = valor1 / valor2;
+    		}
+    		insertarElemento(tabla,size,valor3,"",0.0,variable3,elementosOcupados,type3 ); 	
+    	}else if((strcmp(type, type2) == 0) && (strcmp(type, type3) == 0) && (strcmp(type,"float") == 0)){
+	    	fvalor1 = tabla[status1].vvalf;
+	    	fvalor2 = tabla[status2].vvalf;      		
+    		if(strcmp(oper, "+") == 0){
+    			fvalor3 = fvalor1 + fvalor2;
+    		}else if(strcmp(oper, "-") == 0){
+    			fvalor3 = fvalor1 - fvalor2;
+    		}else if(strcmp(oper, "*") == 0){
+    			fvalor3 = fvalor1 * fvalor2;
+    		}else if(strcmp(oper, "/") == 0){
+    			fvalor3 = fvalor1 / fvalor2;
+    		}
+    		insertarElemento(tabla,size,0,"",fvalor3,variable3,elementosOcupados,type3); 	    	
+    	}else{
+    		printf("La operacion realizada no es válida");
+    	}
+    }else if((status1 != -1) && (status2 = -1)){
+    	valor1 = tabla[status1].vvali;
+
+    	if((strcmp(type, type2) == 0) &&  (strcmp(type, type3) == 0) && (strcmp(type,"integer") == 0)){
+    		if(strcmp(oper, "+") == 0){
+    			valor3 = valor1 + valor2;
+    		}else if(strcmp(oper, "-") == 0){
+    			valor3 = valor1 - valor2;
+    		}else if(strcmp(oper, "*") == 0){
+    			valor3 = valor1 * valor2;
+    		}else if(strcmp(oper, "/") == 0){
+    			valor3 = valor1 / valor2;
+    		}
+    		insertarElemento(tabla,size,valor3,"",0.0,variable3,elementosOcupados,type3); 	
+    	}else if((strcmp(type, type2) == 0) &&  (strcmp(type, type3) == 0) && (strcmp(type,"float") == 0)){
+	    	fvalor1 = tabla[status1].vvalf;     		
+    		if(strcmp(oper, "+") == 0){
+    			fvalor3 = fvalor1 + fvalor2;
+    		}else if(strcmp(oper, "-") == 0){
+    			fvalor3 = fvalor1 - fvalor2;
+    		}else if(strcmp(oper, "*") == 0){
+    			fvalor3 = fvalor1 * fvalor2;
+    		}else if(strcmp(oper, "/") == 0){
+    			fvalor3 = fvalor1 / fvalor2;
+    		}    	
+    		insertarElemento(tabla,size,0,"",fvalor3,variable3,elementosOcupados,type3); 
+    	}else{
+    		printf("La operacion realizada no es válida");
+    	}
+    }else if((status1 = -1) && (status2 = -1)){
+    	if((strcmp(type, type2) == 0) &&  (strcmp(type, type3) == 0) && (strcmp(type,"integer") == 0)){
+    		if(strcmp(oper, "+") == 0){
+    			valor3 = valor1 + valor2;
+    		}else if(strcmp(oper, "-") == 0){
+    			valor3 = valor1 - valor2;
+    		}else if(strcmp(oper, "*") == 0){
+    			valor3 = valor1 * valor2;
+    		}else if(strcmp(oper, "/") == 0){
+    			valor3 = valor1 / valor2;
+    		}
+    		insertarElemento(tabla,size,valor3,"",0.0,variable3,elementosOcupados,type3); 
+    	}else if((strcmp(type, type2) == 0) &&  (strcmp(type, type3) == 0) && (strcmp(type,"float") == 0)){
+	    	fvalor1 = tabla[status1].vvalf;     		
+    		if(strcmp(oper, "+") == 0){
+    			fvalor3 = fvalor1 + fvalor2;
+    		}else if(strcmp(oper, "-") == 0){
+    			fvalor3 = fvalor1 - fvalor2;
+    		}else if(strcmp(oper, "*") == 0){
+    			fvalor3 = fvalor1 * fvalor2;
+    		}else if(strcmp(oper, "/") == 0){
+    			fvalor3 = fvalor1 / fvalor2;
+    		}    	
+    		insertarElemento(tabla,size,0,"",fvalor3,variable3,elementosOcupados,type3);
+    	}else{
+    		printf("La operacion realizada no es válida");
+    	}
+    }
+
+
+}*/
 
 void insertarElemento(struct symb *tabla, int *size, int valor, char* svalor, float fvalor, char *variable, int *elementosOcupados, char* type ) {
     int status = 0;
@@ -451,6 +571,8 @@ void insertarElemento(struct symb *tabla, int *size, int valor, char* svalor, fl
     }
      
 }
+
+//FUNCIONES DEL AST
 
 struct ast *createFlow(struct ast *cond){
 
@@ -587,37 +709,37 @@ void printAST(struct ast nodos[], int i, int encontrado, int salida){
 			salida=1;
 		}else{
 			if(strcmp(nodos[i].nodetype, "IF") == 0){
-				printf("\n");
-				printf("%s",nodos[i].nodetype);
-				printf("\n");
+				write_file(ast_text, "\n");
+				write_file(ast_text, nodos[i].nodetype);
+				write_file(ast_text, "\n");
 				temp[0] = *nodos[i].l;
 				printAST(temp,0,0,0);
 
 			}else if(strcmp(nodos[i].nodetype, "WHILE") == 0){
-					printf("\n");
-					printf("%s",nodos[i].nodetype);
-					printf("\n");
+					write_file(ast_text, "\n");
+					write_file(ast_text, nodos[i].nodetype);
+					write_file(ast_text, "\n");
 					temp[0] = *nodos[i].l;
 					printAST(temp,0,0,0);
 
 			}else if((strcmp(nodos[i].nodetype, ">") == 0) || (strcmp(nodos[i].nodetype, "<") == 0) || (strcmp(nodos[i].nodetype, ">=") == 0) ||
 						 (strcmp(nodos[i].nodetype, "<=") == 0) ||  (strcmp(nodos[i].nodetype, "!=") == 0) || (strcmp(nodos[i].nodetype, "==") == 0)){
 
-				printf("%s",nodos[i].nodetype);
-				printf("\n");
+				write_file(ast_text, nodos[i].nodetype);
+				write_file(ast_text, "\n");
 				temp[0] = *nodos[i].l; 
 				printAST(temp,0,0,0);
-				printf("\n");
+				write_file(ast_text, "\n");
 				temp[0] = *nodos[i].r; 
 				printAST(temp,0,0,0);
-				printf("\n");
+				write_file(ast_text, "\n");
 				salida = 1;
 				
 
 			}else if(strcmp(nodos[i].nodetype, "=") == 0){
-				printf("\n");
-				printf("%s",nodos[i].nodetype);
-				printf("\n");
+				write_file(ast_text, "\n");
+				write_file(ast_text, nodos[i].nodetype);
+				write_file(ast_text, "\n");
 				if((strcmp(nodos[i].l->nodetype, "+") == 0)||(strcmp(nodos[i].l->nodetype, "-") == 0)||(strcmp(nodos[i].l->nodetype, "/") == 0)||
 				(strcmp(nodos[i].l->nodetype, "*") == 0)){
 
@@ -635,24 +757,24 @@ void printAST(struct ast nodos[], int i, int encontrado, int salida){
 			}else if((strcmp(nodos[i].nodetype, "+") == 0)||(strcmp(nodos[i].nodetype, "-") == 0)||(strcmp(nodos[i].nodetype, "/") == 0)||
 				(strcmp(nodos[i].nodetype, "*") == 0)){
 
-				printf("%s",nodos[i].nodetype);
-				printf("\n");
+				write_file(ast_text, nodos[i].nodetype);
+				write_file(ast_text, "\n");
 				temp[0] = *nodos[i].l;
 				printAST(temp,0,0,0);
-				printf("\n");
+				write_file(ast_text, "\n");
 				temp[0] = *nodos[i].r;
 				printAST(temp,0,0,0);
-				printf("\n");
+				write_file(ast_text, "\n");
 
 			}else if(strcmp(nodos[i].nodetype, "String") == 0){
 
-				printf("%s",nodos[i].nodetype);
-				printf("\n");
+				write_file(ast_text, nodos[i].nodetype);
+				write_file(ast_text, "\n");
 				salida = 1;
 
 			}else if(strcmp(nodos[i].nodetype, "Constante") == 0){
-				printf("%s",nodos[i].nodetype);
-				printf("\n");
+				write_file(ast_text, nodos[i].nodetype);
+				write_file(ast_text, "\n");
 				salida = 1;
 				encontrado = 1;
 			}			
@@ -665,9 +787,19 @@ void printAST(struct ast nodos[], int i, int encontrado, int salida){
 
 }
 
+// FUNCIONES DE MIPS
+
 
 int main(int argc, char *argv[]) {
-
+		clear_file(filename_data);
+	    clear_file(filename_text);
+	    clear_file(ast_text);
+	    mipsVar_create_data(filename_data);
+		mipsIns_create_text(filename_text); 
+	    mipsVar_initialize_struct(mipsVariables);
+	    mipsVar_initialize_valorStruct(mipsValores);
+	
+                                            
 		inicializarArray(tabla, 0, size);
 		inicializarArray2(nodos, 0, size);
 		if (argc == 1) {
@@ -683,6 +815,7 @@ int main(int argc, char *argv[]) {
              yyparse();
 
 		}
+
 		/*for(int b = 0; b < 52; b++){
 
 			printf(nodos[b].nodetype);
@@ -694,8 +827,10 @@ int main(int argc, char *argv[]) {
 			printf("TIPO %s ",tabla[b].type);
 			printf("\n");
 		}		*/
+
 		printAST(nodos,0,0,0);
 
+		mipsVar_write_declarations(mipsVariables, filename_data);
 }	
 
 

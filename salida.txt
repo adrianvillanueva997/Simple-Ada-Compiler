@@ -1,82 +1,36 @@
 Linea 2 Procedure
 Linea 4 Declaracion de char
-Linea 5 Declaracion de integer
+Linea 5 Declaracion y asignacion de int
 Linea 7 Declaracion y asignacion de int
-Linea 9 Declaracion y asignacion de float
-Linea 10 Declaracion de string
-Linea 11 Sentencia IF
-Linea 12 Begin
-Linea 13 Funcion
-Linea 14 Bucle while
-Linea 15 Declaracion de array
-Linea 16 Fin de procedure/funcion
-Linea 17 Begin
-Linea 19 Asignacion de int
-Linea 21 Asignacion de string
-Linea 22 End begin
-Linea 23 Begin
-Linea 24 Asignacion de de operacion entre variable e int
-Linea 25 End begin
-Linea 27 Sentencia IF
-Linea 28 Begin
-Linea 29 Asignacion de string
-Linea 30 End begin
-Linea 31 Else
-Linea 32 Begin
-Linea 33 Asignacion de char
-Linea 34 End begin
-Linea 36 End IF
-Linea 37 Begin
-Linea 38 Asignacion de int
-Linea 40 Bucle for
-Linea 41 Asignacion de int
-Linea 42 Fin de bucle
-Linea 43 End begin
-Linea 44 Comentario
-Linea 45 Fin de procedure/funcion
-
-=
-Constante
-
-=
-Constante
-
-IF
->
-String
-
-String
-
-
-WHILE
->
-String
-
-Constante
-
-
-=
-+
-Constante
-
-Constante
-
-
-=
-String
-
-IF
->
-Constante
-
-Constante
-
-
-=
-String
-
-=
-Constante
-
-=
-Constante
+Linea 8 Declaracion y asignacion de float
+Linea 9 Declaracion de string
+Linea 10 Sentencia IF
+Linea 11 Begin
+Linea 12 Funcion
+Linea 13 Bucle while
+Linea 14 Declaracion de array
+Linea 15 Fin de procedure/funcion
+Linea 16 Begin
+Linea 18 Asignacion de int
+Linea 20 Asignacion de string
+Linea 21 End begin
+Linea 22 Begin
+Linea 23 Asignacion de de operacion entre variable e int
+Linea 24 End begin
+Linea 26 Sentencia IF
+Linea 27 Begin
+Linea 28 Asignacion de string
+Linea 29 End begin
+Linea 30 Else
+Linea 31 Begin
+Linea 32 Asignacion de char
+Linea 33 End begin
+Linea 35 End IF
+Linea 36 Begin
+Linea 37 Asignacion de int
+Linea 39 Bucle for
+Linea 40 Asignacion de int
+Linea 41 Fin de bucle
+Linea 42 End begin
+Linea 43 Comentario
+Linea 44 Fin de procedure/funcion

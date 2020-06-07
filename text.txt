@@ -1,0 +1,3 @@
+.text
+bgt s0,s1 then
+bgt s8978564,s8978564 then

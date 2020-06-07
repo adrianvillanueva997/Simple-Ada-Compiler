@@ -2,13 +2,12 @@
 procedure Main is
 
    variable_char : Character;
-   variable_int1 : Integer;
+   variable_int1 : Integer := 1;
 
    variable_int2 : Integer := 1;
-   
    variable_float1: float := 1.2;
    variable_str: string;
-   if a>a then
+   if variable_int1>variable_int2 then
 begin
    function Minimo (B: Integer) return Integer is
       while a>1 loop
@@ -24,7 +23,7 @@ begin
       variable_int3 := variable_int1 + 1;
    end;
 
-   if 1 > 1 then
+   if b > b then
       begin
          variable_char := "aa";
       end;
