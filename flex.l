@@ -23,6 +23,8 @@ char (\'.{1}\')
 fnum ([0-9])+[\,|\.]([0-9])+
 inum ([0-9])+
 bool (bool|boolean)
+array (array)
+of (of)
 else (else|ELSE)
 elsif (elsif|ELSIF)
 loop_ (loop|LOOP)
@@ -30,6 +32,8 @@ int (integer|Integer)
 stringd (string|String)
 character (Character|character)
 float (Float|float)
+function (function)
+return (return)
 linea (\n)
 in (in|IN)
 while (while|WHILE)
@@ -59,9 +63,14 @@ then (then|THEN)
 {for}  	{return FOR;}
 {if}  	{return IF;}
 {loop_}  {return LOOP_;}
+{while} {return WHILE;}
+{array} {return ARR;}
+{of}	{return OF;}
 {false} {return FALSE;}
 {char}  {yylval.sval = strdup(yytext);return CHAR;}
 {bool}  {return BOOL;}
+{function} {return FUNC;}
+{return} {return RET;}
 {and} 	{return AND;}
 {or} 	{return OR;}
 {int} 	{return INTEGERDEC;}
@@ -89,6 +98,7 @@ then (then|THEN)
 "<="    {return LESSER_THAN;}
 "!="    {return NOT_EQUAL;}
 "--".*  {return COMMENT;}
+
 
 
 %%

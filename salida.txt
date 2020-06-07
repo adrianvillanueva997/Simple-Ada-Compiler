@@ -1,136 +1,82 @@
 Linea 2 Procedure
 Linea 4 Declaracion de char
 Linea 5 Declaracion de integer
-Linea 6 Declaracion y asignacion de int
-Linea 7 Declaracion y asignacion de float
-Linea 8 Declaracion de string
-Linea 9 Sentencia IF
-Linea 10 Begin
+Linea 7 Declaracion y asignacion de int
+Linea 9 Declaracion y asignacion de float
+Linea 10 Declaracion de string
+Linea 11 Sentencia IF
 Linea 12 Begin
-Linea 13 Asignacion de int
-=Linea 14 Asignacion de string
-=Linea 15 End begin
-Linea 16 Begin
-Linea 17 Asignacion de float
-=Linea 18 Asignacion de de operacion entre variable e int
-Linea 19 End begin
-Linea 21 Sentencia IF
-Linea 22 Begin
-Linea 23 Asignacion de string
-=Linea 24 End begin
-Linea 25 Else
-Linea 26 Begin
-Linea 27 Asignacion de char
-Linea 28 End begin
-Linea 30 End IF
-Linea 31 Begin
-Linea 32 Asignacion de int
-=Linea 33 Bucle for
-Linea 34 Asignacion de float
-=Linea 35 Fin de for
-Linea 36 End begin
-Linea 37 Comentario
-Linea 38 End procedure
-Nombre variable_int2 INT 1 FLOAT 0.000000 STRING (null) TIPO integer 
+Linea 13 Funcion
+Linea 14 Bucle while
+Linea 15 Declaracion de array
+Linea 16 Fin de procedure/funcion
+Linea 17 Begin
+Linea 19 Asignacion de int
+Linea 21 Asignacion de string
+Linea 22 End begin
+Linea 23 Begin
+Linea 24 Asignacion de de operacion entre variable e int
+Linea 25 End begin
+Linea 27 Sentencia IF
+Linea 28 Begin
+Linea 29 Asignacion de string
+Linea 30 End begin
+Linea 31 Else
+Linea 32 Begin
+Linea 33 Asignacion de char
+Linea 34 End begin
+Linea 36 End IF
+Linea 37 Begin
+Linea 38 Asignacion de int
+Linea 40 Bucle for
+Linea 41 Asignacion de int
+Linea 42 Fin de bucle
+Linea 43 End begin
+Linea 44 Comentario
+Linea 45 Fin de procedure/funcion
 
-Nombre variable_float1 INT 0 FLOAT 0.000000 STRING (null) TIPO float 
+=
+Constante
 
-Nombre variable_int1 INT 2 FLOAT 0.000000 STRING (null) TIPO integer 
+=
+Constante
 
-Nombre variable_str INT 0 FLOAT 0.000000 STRING (null) TIPO string 
+IF
+>
+String
 
-Nombre variable_int2 INT 0 FLOAT 0.000000 STRING (null) TIPO float 
+String
 
-Nombre variable_char INT 0 FLOAT 0.000000 STRING 'b' TIPO string 
 
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+WHILE
+>
+String
 
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+Constante
 
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
 
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+=
++
+Constante
 
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+Constante
 
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
 
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+=
+String
 
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+IF
+>
+Constante
 
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+Constante
 
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
 
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+=
+String
 
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+=
+Constante
 
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
-
-Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+=
+Constante
