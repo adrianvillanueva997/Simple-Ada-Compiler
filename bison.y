@@ -224,6 +224,12 @@ DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$.s = "Declaracion de integer\n";}
 
 	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME SEMICOLON {$$.s = "Declaracion de int y asignacion de variable \n"; $$.a = createASG($6.a);}
 
+	| VAR_NAME COLON FLOATDEC COLON EQUAL VAR_NAME SEMICOLON {$$.s = "Declaracion de float y asignacion de variable \n"; $$.a = createASG($6.a);}
+
+	| VAR_NAME COLON STRINGDEC COLON EQUAL VAR_NAME SEMICOLON {$$.s = "Declaracion de string y asignacion de variable \n"; $$.a = createASG($6.a);}
+
+	| VAR_NAME COLON CHARDEC COLON EQUAL VAR_NAME SEMICOLON {$$.s = "Declaracion de char y asignacion de variable \n"; $$.a = createASG($6.a);}
+
 	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION SEMICOLON {$$.s = "Declaracion y asignacion de int\n" ;
 	insertarElemento(tabla, &size, $6.i, "", 0.0, $1.s, &elementosOcupados, "integer" ); $$.a = createASG($6.a);
 	mipsVar_insert_mips_variable_declaration(mipsVariables, "integer", $1.s,$6.i, NULL, -500,-500,filename_text);}
