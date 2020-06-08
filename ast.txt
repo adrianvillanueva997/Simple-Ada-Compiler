@@ -8,42 +8,25 @@ Constante
 =
 Constante
 
-IF
->
-String
+=
+Constante
 
+=
 String
-
 
 WHILE
->
+<
 String
 
 Constante
 
-
-=
-+
-Constante
-
-Constante
-
-
-=
-String
 
 IF
 >
 String
 
-String
-
-
-=
-String
-
-=
 Constante
+
 
 =
 Constante

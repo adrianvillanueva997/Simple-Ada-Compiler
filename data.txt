@@ -1,3 +1,5 @@
 .data
-variable_int1: .word 1
+variable_int1: .word 2
 variable_int2: .word 1
+variable_int3: .word 1
+variable_int4: .word 0

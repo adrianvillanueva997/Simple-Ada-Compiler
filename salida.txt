@@ -1,36 +1,117 @@
-Linea 2 Procedure
-Linea 4 Declaracion de char
-Linea 5 Declaracion y asignacion de int
+Linea 3 Procedure
+Linea 5 Declaracion de char
+Linea 6 Declaracion y asignacion de int
 Linea 7 Declaracion y asignacion de int
-Linea 8 Declaracion y asignacion de float
-Linea 9 Declaracion de string
-Linea 10 Sentencia IF
-Linea 11 Begin
-Linea 12 Funcion
-Linea 13 Bucle while
-Linea 14 Declaracion de array
-Linea 15 Fin de procedure/funcion
-Linea 16 Begin
+Linea 8 Declaracion y asignacion de int
+Linea 9 Declaracion y asignacion de int
+Linea 10 Declaracion de int y asignacion de variable 
+Linea 12 Bucle while
+Linea 13 Sentencia IF
+Linea 14 Asignacion de de operacion entre variable e int
+Linea 15 End IF
+Linea 16 Fin de bucle
 Linea 18 Asignacion de int
-Linea 20 Asignacion de string
-Linea 21 End begin
-Linea 22 Begin
-Linea 23 Asignacion de de operacion entre variable e int
-Linea 24 End begin
-Linea 26 Sentencia IF
-Linea 27 Begin
-Linea 28 Asignacion de string
-Linea 29 End begin
-Linea 30 Else
-Linea 31 Begin
-Linea 32 Asignacion de char
-Linea 33 End begin
-Linea 35 End IF
-Linea 36 Begin
-Linea 37 Asignacion de int
-Linea 39 Bucle for
-Linea 40 Asignacion de int
-Linea 41 Fin de bucle
-Linea 42 End begin
-Linea 43 Comentario
-Linea 44 Fin de procedure/funcion
+
+Nombre variable_int1 INT 2 FLOAT 0.000000 STRING (null) TIPO integer 
+
+Nombre variable_int2 INT 1 FLOAT 0.000000 STRING (null) TIPO integer 
+
+Nombre variable_int3 INT 1 FLOAT 0.000000 STRING (null) TIPO integer 
+
+Nombre variable_int4 INT 3 FLOAT 0.000000 STRING (null) TIPO integer 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
+
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 

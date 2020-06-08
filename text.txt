@@ -1,3 +1,20 @@
 .text
-bgt s0,s1 then
-bgt s8978564,s8978564 then
+lw $s0,variable_int1
+lw $s1,variable_int2
+lw $s2,variable_int3
+lw $s3,variable_int4
+li $t0, 10
+Loop0: bgt $s0,$t0 exit0
+li $t1, 0
+bgt $s2,$t1, then0
+ j endif0
+ then0:
+add $s0,$s0,1
+
+endif0:
+
+
+j Loop0
+ exit0:
+li $t2, 3
+move $s3, $t2

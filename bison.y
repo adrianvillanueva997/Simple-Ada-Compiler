@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <values.h>
-#include "functions.c"
+#include "mips.c"
 
 extern int yylex();
 extern int yyparse();
@@ -119,10 +119,13 @@ void inicializarArray2(struct ast *nodos, int inicio, int fin);
 	struct attributes{
 	int i;
 	float f;
+	int i2;
+	float f2;
 	char* s;
 	char *temp1;
 	char *temp2;
 	char *temp3;
+	char* type;
 	struct ast *a;
 	struct asign *as;
 	}st;
@@ -132,7 +135,7 @@ void inicializarArray2(struct ast *nodos, int inicio, int fin);
 
 // TIPOS
 %token<st> INT
-%token<st> FLOAT
+%token<fval> FLOAT
 %token<sval> VAR
 %token<sval> STR
 %token<sval> CHAR
@@ -178,7 +181,6 @@ void inicializarArray2(struct ast *nodos, int inicio, int fin);
 // %type<sval> BOOLEAN_MIX
 %type<st> BOOLEAN_VAR
 %type<st> COM
-%type<sval> LOOP
 %type<sval> BEGIN
 %type<sval> FUNCDECL
 %type<sval> DECTYPE
@@ -204,7 +206,6 @@ line:
 STMT: 
 	IF_COND {  printf("Linea %d ",line_num); printf("%s", $1.s);if(!$1.a){ ;} else {evalAST(*$1.a, &size);}}
 	| PR { printf("Linea %d ",line_num); printf("%s", $1);}
-	| LOOP { printf("Linea %d ",line_num); printf("%s", $1);}
 	| WLOOP { printf("Linea %d ",line_num); printf("%s", $1.s);if(!$1.a){ ;} else {evalAST(*$1.a, &size);}}
 	| DECL { printf("Linea %d ",line_num); printf("%s",$1.s); if(!$1.a){ ;} else {evalAST(*$1.a, &size);}}
 	| FUNCDECL { printf("Linea %d ",line_num); printf("%s", $1);}
@@ -221,18 +222,25 @@ DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$.s = "Declaracion de integer\n";}
 	| VAR_NAME COLON BOOL SEMICOLON {$$.s="Declaracion de boolean\n";}
 	| VAR_NAME COLON ARR LEFT OPERATION DOT DOT OPERATION RIGHT OF DECTYPE SEMICOLON {$$.s="Declaracion de array\n";}
 
+	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME SEMICOLON {$$.s = "Declaracion de int y asignacion de variable \n"; $$.a = createASG($6.a);}
+
 	| VAR_NAME COLON INTEGERDEC COLON EQUAL OPERATION SEMICOLON {$$.s = "Declaracion y asignacion de int\n" ;
 	insertarElemento(tabla, &size, $6.i, "", 0.0, $1.s, &elementosOcupados, "integer" ); $$.a = createASG($6.a);
-	mipsVar_insert_mips_variable_declaration(mipsVariables, "integer", $1.s,$6.i, NULL, -500,-500);}
+	mipsVar_insert_mips_variable_declaration(mipsVariables, "integer", $1.s,$6.i, NULL, -500,-500,filename_text);}
 
 	| VAR_NAME COLON FLOATDEC COLON EQUAL OPERATION2 SEMICOLON {$$.s = "Declaracion y asignacion de float\n" ;
-	insertarElemento(tabla, &size, 0, "", $6.f, $1.s, &elementosOcupados, "float" ); $$.a = createASG($6.a);}
+	insertarElemento(tabla, &size, 0, "", $6.f, $1.s, &elementosOcupados, "float" ); $$.a = createASG($6.a);
+	mipsVar_insert_mips_variable_declaration(mipsVariables, "float", $1.s,-500, NULL, $6.f,-500,filename_text);}
 
 	| VAR_NAME COLON EQUAL OPERATION SEMICOLON { $$.s = "Asignacion de int\n";
-	insertarElemento(tabla, &size, $4.i, "", 0.0, $1.s, &elementosOcupados, "integer" ); $$.a = createASG($4.a); }
+	insertarElemento(tabla, &size, $4.i, "", 0.0, $1.s, &elementosOcupados, "integer" ); $$.a = createASG($4.a); 
+	mipsIns_asign_val_to_var(filename_text, mipsVariables, mipsValores,
+                              $1.s, "integer", $4.i, -500);}
 	
 	| VAR_NAME COLON EQUAL OPERATION2 SEMICOLON { $$.s = "Asignacion de float\n";
-	insertarElemento(tabla, &size, 0, "", $4.f, $1.s, &elementosOcupados, "float" ); $$.a = createASG($4.a);}	
+	insertarElemento(tabla, &size, 0, "", $4.f, $1.s, &elementosOcupados, "float" ); $$.a = createASG($4.a);
+	mipsIns_asign_val_to_var(filename_text, mipsVariables, mipsValores,
+                              $1.s, "float", -500, $4.f);}	
 	
 	| VAR_NAME COLON STRINGDEC COLON EQUAL SOP SEMICOLON { $$.s = "Asignacion y declaracion de string\n";
 	insertarElemento(tabla, &size, 0, $6.s, 0.0, $1.s, &elementosOcupados, "string" ); $$.a = createASG($6.a);}
@@ -246,10 +254,10 @@ DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$.s = "Declaracion de integer\n";}
 	| VAR_NAME COLON EQUAL CHAR SEMICOLON { $$.s = "Asignacion de char\n";
 	insertarElemento(tabla, &size, 0, $4, 0.0, $1.s, &elementosOcupados, "string" );}
 
-	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME OPER OPERATION SEMICOLON {$$.s = "Declaracion y asignacion de operacion entre variable e int\n" ;
-	/*realizarOperacion(tabla, &size, $6.i, $8.i, $1.i, 0.0, 0.0, 0.0, $6.s, "", $1.s, &elementosOcupados, tabla[buscarValor(tabla,$6.s)] , char* type2, char* type3, char* oper)*/}
+	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME OPER OPERATION SEMICOLON {$$.s = "Declaracion y asignacion de operacion entre variable e int\n" ;}
 
-	| VAR_NAME COLON EQUAL VAR_NAME OPER OPERATION SEMICOLON { $$.s = "Asignacion de de operacion entre variable e int\n" ;}
+	| VAR_NAME COLON EQUAL VAR_NAME OPER OPERATION SEMICOLON { $$.s = "Asignacion de de operacion entre variable e int\n" ;
+	mipsIns_simpleOperations(mipsVariables, filename_text, *$5.s, $1.s,"integer", $6.i, -500);}
 
 	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME OPER OPERATION2 SEMICOLON {$$.s = "Declaracion y asignacion de operacion entre variable y float\n" ;}
 
@@ -257,11 +265,14 @@ DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$.s = "Declaracion de integer\n";}
 
 	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME OPER VAR_NAME SEMICOLON {$$.s = "Declaracion y asignacion de operacion entre variable y variable\n" ;}
 
-	| VAR_NAME COLON EQUAL VAR_NAME OPER VAR_NAME SEMICOLON { $$.s = "Asignacion de operacion entre variable y variable\n" ;}
+	| VAR_NAME COLON EQUAL VAR_NAME OPER VAR_NAME SEMICOLON { $$.s = "Asignacion de operacion entre variable y variable\n" ;
+	mipsIns_math_operations_ASG(mipsVariables, filename_text, *$5.s, $1.s,
+                                 $4.s, $6.s);}
 	
 	| VAR_NAME COLON EQUAL BOOLEAN_VAR SEMICOLON {$$.s="Asignacion de boolean\n";}
 	
 ;
+
 
 DECTYPE:
 	INTEGERDEC {$$ = "";}
@@ -282,15 +293,17 @@ OPER: PLUS {$$.s = "+";}
 	| MULTIPLY {$$.s = "*";}
 ;
 
-LOOP: FOR VAR_NAME IN INT DOT DOT VAR_NAME LOOP_ {$$="Bucle for\n";}
-	| FOR VAR_NAME IN VAR_NAME DOT DOT VAR_NAME LOOP_ {$$="Bucle for\n";}
-	| FOR VAR_NAME IN VAR_NAME DOT DOT INT LOOP_ {$$="Bucle for\n";}
-	| FOR VAR_NAME IN INT DOT DOT INT LOOP_ {$$="Bucle for\n";}
-	| END LOOP_ SEMICOLON {$$="Fin de bucle\n";}
-;
+
 
 WLOOP:
-	WHILE BOOLEAN_OP LOOP_ {$$.s = "Bucle while\n"; if(!$2.a){ ;} else {$$.a = createFlow2($2.a);}}
+	WHILE BOOLEAN_OP LOOP_ {$$.s = "Bucle while\n";
+
+	if((strcmp($2.temp2, "") != 0) && (strcmp($2.temp3, "") != 0)){mipsIns_while_var_var(mipsVariables, filename_text, $2.temp2, $2.temp3, $2.temp1);}
+	else if((strcmp($2.temp2, "") != 0) && (strcmp($2.temp3, "") == 0) && (strcmp($2.type, "integer") == 0)){mipsIns_while_var_num(mipsVariables, mipsValores, filename_text,$2.temp2,"integer" ,$2.i ,-500 ,$2.temp1);}
+	else if((strcmp($2.temp2, "") != 0) && (strcmp($2.temp3, "") == 0) && (strcmp($2.type, "float") == 0)){mipsIns_while_var_num(mipsVariables, mipsValores, filename_text,$2.temp2,"float" ,-500 ,$2.f ,$2.temp1);}
+	if(!$2.a){ ;} else {$$.a = createFlow2($2.a);}
+	}
+	| END LOOP_ SEMICOLON {$$.s="Fin de bucle\n";mipsIns_endWhile(filename_text);}
 ;
 
 COM:
@@ -314,10 +327,16 @@ PR:
 ;
 
 IF_COND: 
-	IF BOOLEAN_OP THEN {$$.s = "Sentencia IF\n"; mipsIns_if_var_var(mipsVariables,filename_text,$2.temp1,$2.temp2,$2.temp3); if(!$2.a){ ;} else {$$.a = createFlow($2.a);}}
-	| END IF SEMICOLON {$$.s = "End IF\n";}
+	
+	IF BOOLEAN_OP THEN {$$.s = "Sentencia IF\n"; 
+	if((strcmp($2.temp2, "") != 0) && (strcmp($2.temp3, "") != 0)){mipsIns_if_var_var(mipsVariables,filename_text,$2.temp1,$2.temp2,$2.temp3);}
+	else if((strcmp($2.temp2, "") != 0) && (strcmp($2.temp3, "") == 0) && (strcmp($2.type, "integer") == 0)){mipsIns_if_var_num(mipsVariables, mipsValores, filename_text,$2.temp1, $2.temp2, "integer", $2.i, -500);}
+	else if((strcmp($2.temp2, "") != 0) && (strcmp($2.temp3, "") == 0) && (strcmp($2.type, "float") == 0)){mipsIns_if_var_num(mipsVariables, mipsValores, filename_text,$2.temp1, $2.temp2, "float", -500, $2.f);}
+	if(!$2.a){ ;} else {$$.a = createFlow($2.a);}}
+
+	| END IF SEMICOLON {$$.s = "End IF\n"; mipsIns_endIf(filename_text);}
 	| ELSE {$$.s = "Else\n";}
-	| ELSIF {$$.s = "Elsif\n";}
+	| ELSIF BOOLEAN_OP THEN {$$.s = "Elsif\n";}
 ;
 
 
@@ -331,7 +350,7 @@ OPERATION: INT {$$.i = $1.i; $$.a = createNum($1.i);}
 
 ;
 // Operaciones aritmeticas con float
-OPERATION2: FLOAT {$$.f = $1.f; $$.a = createNum($1.i);}
+OPERATION2: FLOAT {$$.f = $1; $$.a = createNum($1);}
 	| OPERATION2 PLUS OPERATION2 {$$.f = $1.f + $3.f; $$.a = createAST($2,$1.a,$3.a);} // 1 + 1
 	| OPERATION2 MINUS OPERATION2 { $$.f = $1.f - $3.f; $$.a = createAST($2,$1.a,$3.a);} // 1 -1
 	| OPERATION2 MULTIPLY OPERATION2 { $$.f = $1.f * $3.f; $$.a = createAST($2,$1.a,$3.a);} // 1 * 1
@@ -346,9 +365,9 @@ SOP: STR {$$.s = $1; $$.a = createSTR($1);}
 
 // Expresiones booleanas
 BOOLEAN_OPERATORS:
-	EQUAL {$$ = "==";}
+	EQUAL {$$ = "=";}
 	| MORE {$$=">";}
-	| LESS {$$== "<";}
+	| LESS {$$= "<";}
 	| GREATER_THAN {$$=">=";}
 	| LESSER_THAN {$$="<=";}
 	| NOT_EQUAL {$$="!=";}
@@ -375,12 +394,11 @@ BOOLEAN_MIX:
 // Operaciones booleanas
 BOOLEAN_OP:
 	VAR_NAME BOOLEAN_OPERATORS VAR_NAME {$$.s="Operacion booleana variables\n"; $$.a = createBOO($2,$1.a,$3.a); $$.temp1 = $2; $$.temp2 = $1.s; $$.temp3 = $3.s;}
-	| VAR_NAME BOOLEAN_OPERATORS OPERATION {$$.s="Operacion booleana variable - numero\n"; $$.a = createBOO($2,$1.a,$3.a); $$.temp1 = $2; $$.temp2 = $1.s; }
+	| VAR_NAME BOOLEAN_OPERATORS OPERATION {$$.s="Operacion booleana variable - numero\n"; $$.a = createBOO($2,$1.a,$3.a); $$.temp1 = $2; $$.temp2 = $1.s; $$.temp3 = ""; $$.i = $3.i; $$.type = "integer"; }
 	| VAR_NAME BOOLEAN_OPERATORS SOP {$$.s="Operacion booleana variable - string\n"; $$.a = createBOO($2,$1.a,$3.a); $$.temp1 = $2; $$.temp2 = $1.s;}
-	| VAR_NAME BOOLEAN_OPERATORS OPERATION2 {$$.s="Operacion booleana variable - float\n"; $$.a = createBOO($2,$1.a,$3.a);$$.temp1 = $2;$$.temp2 = $1.s;}
-	| OPERATION BOOLEAN_OPERATORS OPERATION {$$.s="Operacion booleana numero - numero\n"; $$.a = createBOO($2,$1.a,$3.a);$$.temp1 = $2;}
+	| VAR_NAME BOOLEAN_OPERATORS OPERATION2 {$$.s="Operacion booleana variable - float\n"; $$.a = createBOO($2,$1.a,$3.a);$$.temp1 = $2;$$.temp2 = $1.s;
+	$$.temp3 = "";$$.f = $3.f; $$.type = "float";}
 	| SOP BOOLEAN_OPERATORS SOP {$$.s="Operacion booleana string - string\n"; $$.a = createBOO($2,$1.a,$3.a);$$.temp1 = $2;}
-	| OPERATION2 BOOLEAN_OPERATORS OPERATION2 {$$.s="Operacion booleana float - float\n"; $$.a = createBOO($2,$1.a,$3.a);$$.temp1 = $2;}
 	| VAR_NAME EQUAL BOOLEAN_VAR {$$.s="Variable igual a True/False\n"; $$.a = createBOO($2,$1.a,$3.a);}
 
 ;
@@ -418,103 +436,184 @@ int buscarValor(struct symb *tabla, char *nombre, char *tipo, int *size) {
     return status;
 }
 
-/*void realizarOperacion(struct symb *tabla, int *size, int valor, int valor2, int valor3, float fvalor, float fvalor2, float fvalor3, char *variable, char *variable2, char *variable3,int *elementosOcupados, char* type , char* type2, char* type3, char* oper){
+void realizarOperacion(struct symb *tabla, int *size, int valor, int valor2, int valor3, float fvalor, float fvalor2, float fvalor3, char *variable, char *variable2, char *variable3,int *elementosOcupados, char* type , char* type2, char* type3, char* oper){
 
-
+	
 	int status1 = buscarValor(tabla, variable, type, size);
 	int status2 = buscarValor(tabla, variable2, type2, size);
 	int status3 = buscarValor(tabla, variable3, type3, size);
 
+	printf("%i",status1);
+	printf("patata");
+
     if((status1 != -1) && (status2 != -1)){
     	if((strcmp(type, type2) == 0) && (strcmp(type, type3) == 0) && (strcmp(type,"integer") == 0)){
-	    	valor1 = tabla[status1].vvali;
+	    	valor = tabla[status1].vvali;
 	    	valor2 = tabla[status2].vvali;    	
     		if(strcmp(oper, "+") == 0){
-    			valor3 = valor1 + valor2;
+    			valor3 = valor + valor2;
     		}else if(strcmp(oper, "-") == 0){
-    			valor3 = valor1 - valor2;
+    			valor3 = valor - valor2;
     		}else if(strcmp(oper, "*") == 0){
-    			valor3 = valor1 * valor2;
+    			valor3 = valor * valor2;
     		}else if(strcmp(oper, "/") == 0){
-    			valor3 = valor1 / valor2;
+    			valor3 = valor / valor2;
     		}
     		insertarElemento(tabla,size,valor3,"",0.0,variable3,elementosOcupados,type3 ); 	
+    	}else if((strcmp(type, type2) == 0) && (strcmp(type,"integer") == 0)){
+    		valor = tabla[status1].vvali;
+	    	valor2 = tabla[status2].vvali;    	
+    		if(strcmp(oper, "+") == 0){
+    			valor3 = valor + valor2;
+    		}else if(strcmp(oper, "-") == 0){
+    			valor3 = valor - valor2;
+    		}else if(strcmp(oper, "*") == 0){
+    			valor3 = valor * valor2;
+    		}else if(strcmp(oper, "/") == 0){
+    			valor3 = valor / valor2;
+    		}
+    		insertarElemento(tabla,size,valor3,"",0.0,variable3,elementosOcupados,"integer" );
     	}else if((strcmp(type, type2) == 0) && (strcmp(type, type3) == 0) && (strcmp(type,"float") == 0)){
-	    	fvalor1 = tabla[status1].vvalf;
+	    	fvalor = tabla[status1].vvalf;
 	    	fvalor2 = tabla[status2].vvalf;      		
     		if(strcmp(oper, "+") == 0){
-    			fvalor3 = fvalor1 + fvalor2;
+    			fvalor3 = fvalor + fvalor2;
     		}else if(strcmp(oper, "-") == 0){
-    			fvalor3 = fvalor1 - fvalor2;
+    			fvalor3 = fvalor - fvalor2;
     		}else if(strcmp(oper, "*") == 0){
-    			fvalor3 = fvalor1 * fvalor2;
+    			fvalor3 = fvalor * fvalor2;
     		}else if(strcmp(oper, "/") == 0){
-    			fvalor3 = fvalor1 / fvalor2;
+    			fvalor3 = fvalor / fvalor2;
     		}
     		insertarElemento(tabla,size,0,"",fvalor3,variable3,elementosOcupados,type3); 	    	
+    	}else if((strcmp(type, type2) == 0) && (strcmp(type,"float") == 0)){
+	    	fvalor = tabla[status1].vvalf;
+	    	fvalor2 = tabla[status2].vvalf;      		
+    		if(strcmp(oper, "+") == 0){
+    			fvalor3 = fvalor + fvalor2;
+    		}else if(strcmp(oper, "-") == 0){
+    			fvalor3 = fvalor - fvalor2;
+    		}else if(strcmp(oper, "*") == 0){
+    			fvalor3 = fvalor * fvalor2;
+    		}else if(strcmp(oper, "/") == 0){
+    			fvalor3 = fvalor / fvalor2;
+    		}
+    		insertarElemento(tabla,size,0,"",fvalor3,variable3,elementosOcupados,"float"); 
+
     	}else{
     		printf("La operacion realizada no es válida");
     	}
     }else if((status1 != -1) && (status2 = -1)){
-    	valor1 = tabla[status1].vvali;
+    	valor = tabla[status1].vvali;
 
     	if((strcmp(type, type2) == 0) &&  (strcmp(type, type3) == 0) && (strcmp(type,"integer") == 0)){
     		if(strcmp(oper, "+") == 0){
-    			valor3 = valor1 + valor2;
+    			valor3 = valor + valor2;
     		}else if(strcmp(oper, "-") == 0){
-    			valor3 = valor1 - valor2;
+    			valor3 = valor - valor2;
     		}else if(strcmp(oper, "*") == 0){
-    			valor3 = valor1 * valor2;
+    			valor3 = valor * valor2;
     		}else if(strcmp(oper, "/") == 0){
-    			valor3 = valor1 / valor2;
+    			valor3 = valor / valor2;
     		}
     		insertarElemento(tabla,size,valor3,"",0.0,variable3,elementosOcupados,type3); 	
-    	}else if((strcmp(type, type2) == 0) &&  (strcmp(type, type3) == 0) && (strcmp(type,"float") == 0)){
-	    	fvalor1 = tabla[status1].vvalf;     		
+    	}else if((strcmp(type, type2) == 0) && (strcmp(type,"integer") == 0)){
     		if(strcmp(oper, "+") == 0){
-    			fvalor3 = fvalor1 + fvalor2;
+    			valor3 = valor + valor2;
     		}else if(strcmp(oper, "-") == 0){
-    			fvalor3 = fvalor1 - fvalor2;
+    			valor3 = valor - valor2;
     		}else if(strcmp(oper, "*") == 0){
-    			fvalor3 = fvalor1 * fvalor2;
+    			valor3 = valor * valor2;
     		}else if(strcmp(oper, "/") == 0){
-    			fvalor3 = fvalor1 / fvalor2;
+    			valor3 = valor / valor2;
+    		}
+    		insertarElemento(tabla,size,valor3,"",0.0,variable3,elementosOcupados,"integer"); 	
+
+    	}else if((strcmp(type, type2) == 0) &&  (strcmp(type, type3) == 0) && (strcmp(type,"float") == 0)){
+	    	fvalor = tabla[status1].vvalf;     		
+    		if(strcmp(oper, "+") == 0){
+    			fvalor3 = fvalor + fvalor2;
+    		}else if(strcmp(oper, "-") == 0){
+    			fvalor3 = fvalor - fvalor2;
+    		}else if(strcmp(oper, "*") == 0){
+    			fvalor3 = fvalor * fvalor2;
+    		}else if(strcmp(oper, "/") == 0){
+    			fvalor3 = fvalor / fvalor2;
     		}    	
     		insertarElemento(tabla,size,0,"",fvalor3,variable3,elementosOcupados,type3); 
+
+    	}else if((strcmp(type, type2) == 0) && (strcmp(type,"float") == 0)){
+	    	fvalor = tabla[status1].vvalf;     		
+    		if(strcmp(oper, "+") == 0){
+    			fvalor3 = fvalor + fvalor2;
+    		}else if(strcmp(oper, "-") == 0){
+    			fvalor3 = fvalor - fvalor2;
+    		}else if(strcmp(oper, "*") == 0){
+    			fvalor3 = fvalor * fvalor2;
+    		}else if(strcmp(oper, "/") == 0){
+    			fvalor3 = fvalor / fvalor2;
+    		}    	
+    		insertarElemento(tabla,size,0,"",fvalor3,variable3,elementosOcupados,"float"); 
+
     	}else{
     		printf("La operacion realizada no es válida");
     	}
     }else if((status1 = -1) && (status2 = -1)){
     	if((strcmp(type, type2) == 0) &&  (strcmp(type, type3) == 0) && (strcmp(type,"integer") == 0)){
     		if(strcmp(oper, "+") == 0){
-    			valor3 = valor1 + valor2;
+    			valor3 = valor + valor2;
     		}else if(strcmp(oper, "-") == 0){
-    			valor3 = valor1 - valor2;
+    			valor3 = valor - valor2;
     		}else if(strcmp(oper, "*") == 0){
-    			valor3 = valor1 * valor2;
+    			valor3 = valor * valor2;
     		}else if(strcmp(oper, "/") == 0){
-    			valor3 = valor1 / valor2;
+    			valor3 = valor / valor2;
     		}
     		insertarElemento(tabla,size,valor3,"",0.0,variable3,elementosOcupados,type3); 
-    	}else if((strcmp(type, type2) == 0) &&  (strcmp(type, type3) == 0) && (strcmp(type,"float") == 0)){
-	    	fvalor1 = tabla[status1].vvalf;     		
+    	}else if((strcmp(type, type2) == 0) &&  (strcmp(type, type3) == 0) && (strcmp(type,"integer") == 0)){
     		if(strcmp(oper, "+") == 0){
-    			fvalor3 = fvalor1 + fvalor2;
+    			valor3 = valor + valor2;
     		}else if(strcmp(oper, "-") == 0){
-    			fvalor3 = fvalor1 - fvalor2;
+    			valor3 = valor - valor2;
     		}else if(strcmp(oper, "*") == 0){
-    			fvalor3 = fvalor1 * fvalor2;
+    			valor3 = valor * valor2;
     		}else if(strcmp(oper, "/") == 0){
-    			fvalor3 = fvalor1 / fvalor2;
+    			valor3 = valor / valor2;
+    		}
+    		insertarElemento(tabla,size,valor3,"",0.0,variable3,elementosOcupados,"integer"); 
+
+    	}else if((strcmp(type, type2) == 0) &&  (strcmp(type, type3) == 0) && (strcmp(type,"float") == 0)){
+	    	fvalor = tabla[status1].vvalf;     		
+    		if(strcmp(oper, "+") == 0){
+    			fvalor3 = fvalor + fvalor2;
+    		}else if(strcmp(oper, "-") == 0){
+    			fvalor3 = fvalor - fvalor2;
+    		}else if(strcmp(oper, "*") == 0){
+    			fvalor3 = fvalor * fvalor2;
+    		}else if(strcmp(oper, "/") == 0){
+    			fvalor3 = fvalor / fvalor2;
     		}    	
     		insertarElemento(tabla,size,0,"",fvalor3,variable3,elementosOcupados,type3);
+    	}else if((strcmp(type, type2) == 0) &&  (strcmp(type, type3) == 0) && (strcmp(type,"float") == 0)){
+	    	fvalor = tabla[status1].vvalf;     		
+    		if(strcmp(oper, "+") == 0){
+    			fvalor3 = fvalor + fvalor2;
+    		}else if(strcmp(oper, "-") == 0){
+    			fvalor3 = fvalor - fvalor2;
+    		}else if(strcmp(oper, "*") == 0){
+    			fvalor3 = fvalor * fvalor2;
+    		}else if(strcmp(oper, "/") == 0){
+    			fvalor3 = fvalor / fvalor2;
+    		}    	
+    		insertarElemento(tabla,size,0,"",fvalor3,variable3,elementosOcupados,"float");
+
     	}else{
     		printf("La operacion realizada no es válida");
     	}
     }
 
 
-}*/
+}
 
 void insertarElemento(struct symb *tabla, int *size, int valor, char* svalor, float fvalor, char *variable, int *elementosOcupados, char* type ) {
     int status = 0;
@@ -816,9 +915,7 @@ int main(int argc, char *argv[]) {
 
 		}
 
-		/*for(int b = 0; b < 52; b++){
-
-			printf(nodos[b].nodetype);
+		for(int b = 0; b < 52; b++){
 			printf("\n");		
 			printf("Nombre %s ",tabla[b].vname);
 			printf("INT %i ",tabla[b].vvali);
@@ -826,11 +923,12 @@ int main(int argc, char *argv[]) {
 			printf("STRING %s ",tabla[b].vvals);
 			printf("TIPO %s ",tabla[b].type);
 			printf("\n");
-		}		*/
+		}		
 
 		printAST(nodos,0,0,0);
 
 		mipsVar_write_declarations(mipsVariables, filename_data);
+
 }	
 
 
