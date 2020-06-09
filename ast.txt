@@ -5,28 +5,9 @@ Constante
 =
 Constante
 
-=
-Constante
-
-=
-Constante
-
-=
-String
-
-WHILE
-<
-String
-
-Constante
-
-
 IF
 >
 String
 
 Constante
 
-
-=
-Constante

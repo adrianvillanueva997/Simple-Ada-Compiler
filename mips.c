@@ -111,7 +111,6 @@ void mipsIns_simpleOperations(struct MipsVariables *mipsVariables, char *filenam
                               char *type, int val1, float val2);
 
 
-
 void clear_file(char *filename) {
     FILE *file;
     file = fopen(filename, "w");

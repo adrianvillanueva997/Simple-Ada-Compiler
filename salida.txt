@@ -1,24 +1,20 @@
-Linea 3 Procedure
-Linea 5 Declaracion de char
-Linea 6 Declaracion y asignacion de int
-Linea 7 Declaracion y asignacion de int
-Linea 8 Declaracion y asignacion de int
-Linea 9 Declaracion y asignacion de int
-Linea 10 Declaracion de int y asignacion de variable 
-Linea 12 Bucle while
-Linea 13 Sentencia IF
-Linea 14 Asignacion de de operacion entre variable e int
-Linea 15 End IF
-Linea 16 Fin de bucle
-Linea 18 Asignacion de int
+Linea 1 Procedure
+Linea 3 Declaracion de char
+Linea 4 Declaracion y asignacion de int
+Linea 5 Declaracion y asignacion de float
+Linea 7 Sentencia IF
+Linea 8 Asignacion de de operacion entre variable e int
+Linea 9 End IF
+Linea 10 Fin de procedure/funcion
 
+Tabla de simbolos:
 Nombre variable_int1 INT 2 FLOAT 0.000000 STRING (null) TIPO integer 
 
-Nombre variable_int2 INT 1 FLOAT 0.000000 STRING (null) TIPO integer 
+Nombre variable_float1 INT 0 FLOAT 1.800000 STRING (null) TIPO float 
 
-Nombre variable_int3 INT 1 FLOAT 0.000000 STRING (null) TIPO integer 
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
 
-Nombre variable_int4 INT 3 FLOAT 0.000000 STRING (null) TIPO integer 
+Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
 
 Nombre ._empty INT 0 FLOAT 0.000000 STRING (null) TIPO (null) 
 

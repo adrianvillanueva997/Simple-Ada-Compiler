@@ -267,7 +267,8 @@ DECL: VAR_NAME COLON INTEGERDEC SEMICOLON { $$.s = "Declaracion de integer\n";}
 
 	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME OPER OPERATION2 SEMICOLON {$$.s = "Declaracion y asignacion de operacion entre variable y float\n" ;}
 
-	| VAR_NAME COLON EQUAL VAR_NAME OPER OPERATION2 SEMICOLON { $$.s = "Asignacion de operacion entre variable y float\n" ;}
+	| VAR_NAME COLON EQUAL VAR_NAME OPER OPERATION2 SEMICOLON { $$.s = "Asignacion de operacion entre variable y float\n" ;
+	mipsIns_simpleOperations(mipsVariables, filename_text, *$5.s, $1.s,"float", -500, $6.f);}
 
 	| VAR_NAME COLON INTEGERDEC COLON EQUAL VAR_NAME OPER VAR_NAME SEMICOLON {$$.s = "Declaracion y asignacion de operacion entre variable y variable\n" ;}
 
@@ -899,6 +900,7 @@ int main(int argc, char *argv[]) {
 		clear_file(filename_data);
 	    clear_file(filename_text);
 	    clear_file(ast_text);
+	    clear_file("mips.txt");
 	    mipsVar_create_data(filename_data);
 		mipsIns_create_text(filename_text); 
 	    mipsVar_initialize_struct(mipsVariables);
@@ -921,6 +923,7 @@ int main(int argc, char *argv[]) {
 
 		}
 
+		printf("\nTabla de simbolos:");
 		for(int b = 0; b < 52; b++){
 			printf("\n");		
 			printf("Nombre %s ",tabla[b].vname);
