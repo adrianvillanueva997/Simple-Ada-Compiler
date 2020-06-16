@@ -52,30 +52,38 @@
      BOOL = 269,
      FOR = 270,
      CASE = 271,
-     INTEGERDEC = 272,
-     FLOATDEC = 273,
-     CHARDEC = 274,
-     STRINGDEC = 275,
-     STR = 276,
-     VAR_NAME = 277,
-     CHAR = 278,
-     AND = 279,
-     OR = 280,
-     LESS = 281,
-     MORE = 282,
-     EQUAL = 283,
-     GREATER_THAN = 284,
-     LESSER_THAN = 285,
-     NOT_EQUAL = 286,
-     COMPARE = 287,
-     COMMENT = 288,
-     COLON = 289,
-     SEMICOLON = 290,
-     QUOTE = 291,
-     NEWLINE = 292,
-     QUIT = 293,
-     TRUE = 294,
-     FALSE = 295
+     STR = 272,
+     VAR_NAME = 273,
+     CHAR = 274,
+     AND = 275,
+     OR = 276,
+     PROC = 277,
+     IS = 278,
+     END = 279,
+     BEG = 280,
+     INTEGERDEC = 281,
+     FLOATDEC = 282,
+     CHARDEC = 283,
+     STRINGDEC = 284,
+     IF = 285,
+     THEN = 286,
+     DOT = 287,
+     LOOP_ = 288,
+     LESS = 289,
+     MORE = 290,
+     EQUAL = 291,
+     GREATER_THAN = 292,
+     LESSER_THAN = 293,
+     NOT_EQUAL = 294,
+     COMPARE = 295,
+     COMMENT = 296,
+     COLON = 297,
+     SEMICOLON = 298,
+     QUOTE = 299,
+     NEWLINE = 300,
+     QUIT = 301,
+     TRUE = 302,
+     FALSE = 303
    };
 #endif
 
@@ -86,7 +94,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1685 of yacc.c  */
-#line 14 "bison.y"
+#line 15 "bison.y"
 
 	int ival;
 	float fval;
@@ -95,7 +103,7 @@ typedef union YYSTYPE
 
 
 /* Line 1685 of yacc.c  */
-#line 99 "bison.tab.h"
+#line 107 "bison.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

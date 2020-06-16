@@ -1,0 +1,11 @@
+.text
+lw $s0,variable_int1
+lw $s1,variable_float1
+li $t0, 0.000000
+bgt $s1,$t0, then0
+ j endif0
+ then0:
+add $s0,$s0,1
+
+endif0:
+
