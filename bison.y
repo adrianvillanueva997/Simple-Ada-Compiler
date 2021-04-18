@@ -131,7 +131,7 @@ void inicializarArray2(struct ast *nodos, int inicio, int fin);
 	}st;
 }
 
-%error-verbose
+// %error-verbose
 
 // TIPOS
 %token<st> INT
